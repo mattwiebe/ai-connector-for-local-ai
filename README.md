@@ -46,13 +46,27 @@ The Connectors screen links back to this setup page.
 
 ## Local Proxy Setup
 
-From [`local/`](local):
+Preferred install path:
 
 ```bash
-node server.mjs init
+npm install -g @mattwiebe/wp-home-inference
 ```
 
-If you want to test the npm-style CLI interface locally from the repo root, use:
+Then initialize and run the proxy with:
+
+```bash
+wphi init
+wphi up
+```
+
+You can also run it without a global install:
+
+```bash
+npx @mattwiebe/wp-home-inference init
+npx @mattwiebe/wp-home-inference up
+```
+
+For local development from this repo, you can still use:
 
 ```bash
 node bin/wp-home-inference.mjs init
@@ -70,23 +84,23 @@ That guided setup will:
 After that, normal startup is non-interactive:
 
 ```bash
-node server.mjs
+wphi up
 ```
 
 To reconfigure later:
 
 ```bash
-node server.mjs init
+wphi init
 ```
 
 Useful overrides:
 
 ```bash
-node server.mjs --port 13531
-node server.mjs --funnel-port 10000
-node server.mjs --backend http://localhost:11434
-node server.mjs --api-key your-secret
-node server.mjs --no-tunnel
+wphi up --port 13531
+wphi up --funnel-port 10000
+wphi up --backend http://localhost:11434
+wphi up --api-key your-secret
+wphi up --no-tunnel
 ```
 
 ## Ports
@@ -175,19 +189,19 @@ The npm package name is:
 @mattwiebe/wp-home-inference
 ```
 
-Once published, the intended entrypoint is:
-
-```bash
-npx @mattwiebe/wp-home-inference up
-npx @mattwiebe/wp-home-inference init
-```
-
-It also supports global installation:
+Preferred usage:
 
 ```bash
 npm install -g @mattwiebe/wp-home-inference
 wphi init
 wphi up
+```
+
+It also works without installation:
+
+```bash
+npx @mattwiebe/wp-home-inference up
+npx @mattwiebe/wp-home-inference init
 ```
 
 The package also exposes `wp-home-inference` as a longer alias, but `wphi` is the intended global command.
@@ -209,7 +223,7 @@ Based on npm’s current docs for scoped public packages, the publish flow is:
    `npm view @mattwiebe/wp-home-inference`
 3. Inspect exactly what would be published:
    `npm pack --dry-run`
-4. Publish the first version:
+4. Publish the next version:
    `npm publish`
 
 This repo already sets `publishConfig.access` to `public`, which is the required setting for a public scoped package according to npm’s docs.
