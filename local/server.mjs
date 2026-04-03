@@ -64,6 +64,7 @@ const FUNNEL_PORT_CHOICES = [
 	{ port: 10000, label: '10000' },
 ];
 const ALLOWED_FUNNEL_PORTS = FUNNEL_PORT_CHOICES.map( ( choice ) => choice.port );
+const PLUGIN_RELEASES_URL = 'https://github.com/mattwiebe/wp-home-inference/releases/latest';
 let PORT = 13531;
 let BACKEND = '';
 let API_KEY = '';
@@ -549,12 +550,74 @@ function ensureTailscale() {
 // Proxy handler
 // ---------------------------------------------------------------------------
 
+function normalizeRemoteAddress( address ) {
+	if ( ! address ) {
+		return 'unknown';
+	}
+
+	return address.startsWith( '::ffff:' )
+		? address.slice( 7 )
+		: address;
+}
+
+function extractOriginHost( value ) {
+	if ( ! value ) {
+		return '';
+	}
+
+	const normalized = String( value );
+	if ( ! normalized.includes( '://' ) ) {
+		return normalized;
+	}
+
+	try {
+		return new URL( normalized ).host;
+	} catch {
+		return normalized;
+	}
+}
+
+function getRequestSource( req ) {
+	const forwardedForHeader = req.headers['x-forwarded-for'];
+	const forwardedFor = Array.isArray( forwardedForHeader )
+		? forwardedForHeader[ 0 ]
+		: forwardedForHeader;
+	const remoteAddress = normalizeRemoteAddress(
+		( forwardedFor || '' ).split( ',' )[ 0 ].trim() || req.socket?.remoteAddress || ''
+	);
+	const originHost = extractOriginHost(
+		req.headers.origin ||
+		req.headers.referer ||
+		req.headers['x-forwarded-host'] ||
+		req.headers.host ||
+		''
+	);
+
+	return originHost && originHost !== remoteAddress
+		? `${ originHost } (${ remoteAddress })`
+		: remoteAddress;
+}
+
+function formatRequestLogMessage( req, statusCode ) {
+	const timestamp = new Date().toISOString();
+	const method = req.method || 'GET';
+	const path = req.url || '/';
+	const source = getRequestSource( req );
+
+	return `  [${ timestamp }] ${ statusCode } ${ method } ${ path } from ${ source }`;
+}
+
+function logRequest( req, statusCode ) {
+	console.log( formatRequestLogMessage( req, statusCode ) );
+}
+
 async function handler( req, res ) {
 	// Authenticate.
 	const auth = req.headers.authorization || '';
 	if ( auth !== `Bearer ${ API_KEY }` ) {
 		res.writeHead( 401, { 'Content-Type': 'application/json' } );
 		res.end( JSON.stringify( { error: 'Unauthorized' } ) );
+		logRequest( req, 401 );
 		return;
 	}
 
@@ -593,6 +656,7 @@ async function handler( req, res ) {
 				const { done, value } = await reader.read();
 				if ( done ) {
 					res.end();
+					logRequest( req, upstream.status );
 					return;
 				}
 				res.write( value );
@@ -601,10 +665,12 @@ async function handler( req, res ) {
 			await pump();
 		} else {
 			res.end();
+			logRequest( req, upstream.status );
 		}
 	} catch ( err ) {
 		res.writeHead( 502, { 'Content-Type': 'application/json' } );
 		res.end( JSON.stringify( { error: 'Backend unreachable', detail: err.message } ) );
+		logRequest( req, 502 );
 	}
 }
 
@@ -667,6 +733,11 @@ async function main() {
 		console.log( '  Local smoke test:' );
 		console.log( `    curl -H "Authorization: Bearer ${ API_KEY }" http://127.0.0.1:${ PORT }/v1/models` );
 		console.log( '' );
+		console.log( '  Recommended next steps:' );
+		console.log( '    Run `wphi install` to keep the proxy running in the background on macOS.' );
+		console.log( `    Download the WordPress plugin ZIP at ${ PLUGIN_RELEASES_URL }` );
+		console.log( '    Request logs will appear below with endpoint path and caller IP/host.' );
+		console.log( '' );
 	} );
 
 	process.on( 'SIGINT', () => {
@@ -684,10 +755,13 @@ if ( IS_DIRECT_RUN ) {
 
 export {
 	buildPublicUrl,
+	formatRequestLogMessage,
 	FUNNEL_PORT_CHOICES,
 	getEffectiveConfig,
+	getRequestSource,
 	hasUsableConfig,
 	parseBooleanEnv,
 	parseEnvFile,
 	parseNumberOrFallback,
+	PLUGIN_RELEASES_URL,
 };
