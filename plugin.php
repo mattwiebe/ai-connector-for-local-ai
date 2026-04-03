@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace WordPress\HomeInference;
 
 use WordPress\AiClient\AiClient;
+use WordPress\AiClient\Common\Exception\RuntimeException;
 use WordPress\AiClient\Providers\Http\DTO\ApiKeyRequestAuthentication;
 use WordPress\HomeInference\Provider\HomeInferenceProvider;
 
@@ -68,6 +69,51 @@ function register_provider(): void {
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\\register_provider', 5 );
+
+/**
+ * Allows WordPress AI Client requests to the configured Home Inference endpoint
+ * to bypass wp_safe_remote_request() URL validation.
+ *
+ * The AI client transport in WordPress core currently uses wp_safe_remote_request(),
+ * which rejects certain perfectly valid Tailscale Funnel URLs. The settings page
+ * uses wp_remote_get() and works, so we narrowly disable unsafe URL rejection only
+ * for requests that target the configured Home Inference endpoint.
+ *
+ * @since 0.1.0
+ *
+ * @param array<string, mixed> $args Parsed HTTP request args.
+ * @param string               $url  Request URL.
+ * @return array<string, mixed>
+ */
+function allow_home_inference_safe_remote_requests( array $args, string $url ): array {
+	if ( should_allow_home_inference_request( $url ) ) {
+		$args['reject_unsafe_urls'] = false;
+	}
+
+	return $args;
+}
+add_filter( 'http_request_args', __NAMESPACE__ . '\\allow_home_inference_safe_remote_requests', 10, 2 );
+
+/**
+ * Whether the given URL belongs to the configured Home Inference endpoint.
+ *
+ * @since 0.1.0
+ *
+ * @param string $url Request URL.
+ * @return bool True if the URL should bypass safe URL validation.
+ */
+function should_allow_home_inference_request( string $url ): bool {
+	$endpoint_url = trim( (string) get_option( 'home_inference_endpoint_url', '' ) );
+
+	if ( '' === $endpoint_url ) {
+		return false;
+	}
+
+	$normalized_endpoint = trailingslashit( untrailingslashit( $endpoint_url ) );
+	$normalized_url      = trailingslashit( untrailingslashit( $url ) );
+
+	return str_starts_with( $normalized_url, $normalized_endpoint );
+}
 
 // ---------------------------------------------------------------------------
 // Connector registration

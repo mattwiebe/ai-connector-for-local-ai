@@ -8,9 +8,11 @@ use WP_Error;
 use WP_UnitTestCase;
 use WordPress\AiClient\Providers\Http\DTO\Response;
 use WordPress\HomeInference\Metadata\HomeInferenceModelMetadataDirectory;
+use function WordPress\HomeInference\allow_home_inference_safe_remote_requests;
 use function WordPress\HomeInference\fetch_proxy_models;
 use function WordPress\HomeInference\sanitize_api_key;
 use function WordPress\HomeInference\sanitize_model_id;
+use function WordPress\HomeInference\should_allow_home_inference_request;
 
 final class PluginFunctionsTest extends WP_UnitTestCase {
 
@@ -141,6 +143,30 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		$this->assertSame( '', sanitize_model_id( 'unknown-model' ) );
 
 		remove_all_filters( 'pre_http_request' );
+	}
+
+	public function test_should_allow_home_inference_request_matches_configured_endpoint(): void {
+		$this->assertTrue( should_allow_home_inference_request( 'https://proxy.example.test/v1/models' ) );
+		$this->assertFalse( should_allow_home_inference_request( 'https://api.openai.com/v1/models' ) );
+	}
+
+	public function test_allow_home_inference_safe_remote_requests_disables_unsafe_url_rejection_only_for_home_inference(): void {
+		$allowed_args = allow_home_inference_safe_remote_requests(
+			array(
+				'reject_unsafe_urls' => true,
+			),
+			'https://proxy.example.test/v1/models'
+		);
+
+		$other_args = allow_home_inference_safe_remote_requests(
+			array(
+				'reject_unsafe_urls' => true,
+			),
+			'https://api.openai.com/v1/models'
+		);
+
+		$this->assertFalse( $allowed_args['reject_unsafe_urls'] );
+		$this->assertTrue( $other_args['reject_unsafe_urls'] );
 	}
 
 	public function test_model_directory_falls_back_to_available_models_when_selected_model_is_missing(): void {

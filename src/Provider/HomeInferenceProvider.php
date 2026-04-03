@@ -11,6 +11,7 @@ use WordPress\AiClient\Providers\Contracts\ProviderAvailabilityInterface;
 use WordPress\AiClient\Providers\DTO\ProviderMetadata;
 use WordPress\AiClient\Providers\Enums\ProviderTypeEnum;
 use WordPress\AiClient\Providers\Http\Enums\RequestAuthenticationMethod;
+use WordPress\AiClient\Common\Exception\RuntimeException;
 use WordPress\AiClient\Providers\Models\Contracts\ModelInterface;
 use WordPress\AiClient\Providers\Models\DTO\ModelMetadata;
 use WordPress\HomeInference\Metadata\HomeInferenceModelMetadataDirectory;
@@ -49,7 +50,15 @@ class HomeInferenceProvider extends AbstractApiProvider {
 		ModelMetadata $modelMetadata,
 		ProviderMetadata $providerMetadata
 	): ModelInterface {
-		return new HomeInferenceTextGenerationModel( $modelMetadata, $providerMetadata );
+		foreach ( $modelMetadata->getSupportedCapabilities() as $capability ) {
+			if ( $capability->isTextGeneration() ) {
+				return new HomeInferenceTextGenerationModel( $modelMetadata, $providerMetadata );
+			}
+		}
+
+		throw new RuntimeException(
+			'Unsupported model capabilities: ' . implode( ', ', $modelMetadata->getSupportedCapabilities() )
+		);
 	}
 
 	/**
