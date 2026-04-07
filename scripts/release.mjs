@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createInterface } from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SCRIPT_DIR = dirname( fileURLToPath( import.meta.url ) );
 const ROOT_DIR = dirname( SCRIPT_DIR );
 const PACKAGE_JSON_PATH = join( ROOT_DIR, 'package.json' );
+const PACKAGE_LOCK_PATH = join( ROOT_DIR, 'package-lock.json' );
 const PLUGIN_PATH = join( ROOT_DIR, 'plugin.php' );
 const RELEASE_WORKFLOW = 'release.yml';
 const REPO = 'mattwiebe/wp-home-inference';
@@ -78,6 +81,23 @@ function getPackageVersion() {
 	return packageJson.version;
 }
 
+function writePackageVersion( version ) {
+	const packageJson = JSON.parse( readFileSync( PACKAGE_JSON_PATH, 'utf8' ) );
+	packageJson.version = version;
+	writeFileSync( PACKAGE_JSON_PATH, `${ JSON.stringify( packageJson, null, 2 ) }\n`, 'utf8' );
+}
+
+function writePackageLockVersion( version ) {
+	const packageLock = JSON.parse( readFileSync( PACKAGE_LOCK_PATH, 'utf8' ) );
+	packageLock.version = version;
+
+	if ( packageLock.packages?.[''] ) {
+		packageLock.packages[''].version = version;
+	}
+
+	writeFileSync( PACKAGE_LOCK_PATH, `${ JSON.stringify( packageLock, null, 2 ) }\n`, 'utf8' );
+}
+
 function getPluginVersion() {
 	const pluginPhp = readFileSync( PLUGIN_PATH, 'utf8' );
 	const match = pluginPhp.match( /^\s*\*\s+Version:\s+(.+)$/m );
@@ -87,6 +107,16 @@ function getPluginVersion() {
 	}
 
 	return match[1].trim();
+}
+
+function writePluginVersion( version ) {
+	const pluginPhp = readFileSync( PLUGIN_PATH, 'utf8' );
+	const updated = pluginPhp.replace(
+		/^(\s*\*\s+Version:\s+).+$/m,
+		`$1${ version }`
+	);
+
+	writeFileSync( PLUGIN_PATH, updated, 'utf8' );
 }
 
 function ensureVersionAlignment() {
@@ -118,25 +148,93 @@ function ensureOnMainBranch() {
 	}
 }
 
-function ensureTagDoesNotExist( tag ) {
+function localTagExists( tag ) {
 	try {
 		run( 'git', [ 'rev-parse', '--verify', '--quiet', tag ] );
-		throw new Error( `Tag ${ tag } already exists locally.` );
 	} catch ( error ) {
-		if ( ! String( error.message ).includes( 'already exists locally' ) ) {
-			// Expected when tag does not exist.
-		}
+		return false;
 	}
 
+	return true;
+}
+
+function remoteTagExists( tag ) {
 	try {
 		const remoteTags = run( 'git', [ 'ls-remote', '--tags', 'origin', tag ] ).trim();
-		if ( remoteTags !== '' ) {
-			throw new Error( `Tag ${ tag } already exists on origin.` );
+		return remoteTags !== '';
+	} catch {
+		return false;
+	}
+}
+
+function ensureTagDoesNotExist( tag ) {
+	if ( localTagExists( tag ) ) {
+		throw new Error( `Tag ${ tag } already exists locally.` );
+	}
+
+	if ( remoteTagExists( tag ) ) {
+		throw new Error( `Tag ${ tag } already exists on origin.` );
+	}
+}
+
+function bumpPatchVersion( version ) {
+	const parts = version.split( '.' ).map( ( value ) => Number( value ) );
+
+	if ( parts.length !== 3 || parts.some( ( value ) => ! Number.isInteger( value ) || value < 0 ) ) {
+		throw new Error( `Cannot auto-bump non-semver version: ${ version }` );
+	}
+
+	parts[2] += 1;
+	return parts.join( '.' );
+}
+
+async function promptYesNo( question, defaultValue = true ) {
+	const rl = createInterface( { input, output } );
+	const suffix = defaultValue ? ' [Y/n] ' : ' [y/N] ';
+
+	try {
+		const answer = ( await rl.question( `${ question }${ suffix }` ) ).trim().toLowerCase();
+
+		if ( answer === '' ) {
+			return defaultValue;
 		}
-	} catch ( error ) {
-		if ( String( error.message ).includes( 'already exists on origin' ) ) {
-			throw error;
+
+		return answer === 'y' || answer === 'yes';
+	} finally {
+		rl.close();
+	}
+}
+
+function commitVersionBump( version ) {
+	run( 'git', [ 'add', 'package.json', 'package-lock.json', 'plugin.php' ], { stdio: 'inherit' } );
+	run( 'git', [ 'commit', '-m', `Bump version to ${ version }` ], { stdio: 'inherit' } );
+}
+
+async function resolveReleaseVersion() {
+	let version = ensureVersionAlignment();
+
+	for (;;) {
+		const tag = `v${ version }`;
+
+		if ( ! localTagExists( tag ) && ! remoteTagExists( tag ) ) {
+			return version;
 		}
+
+		const nextVersion = bumpPatchVersion( version );
+		const shouldBump = await promptYesNo(
+			`Tag ${ tag } already exists. Bump version to ${ nextVersion } and continue?`,
+			true
+		);
+
+		if ( ! shouldBump ) {
+			throw new Error( `Release aborted because ${ tag } already exists.` );
+		}
+
+		writePackageVersion( nextVersion );
+		writePackageLockVersion( nextVersion );
+		writePluginVersion( nextVersion );
+		commitVersionBump( nextVersion );
+		version = nextVersion;
 	}
 }
 
@@ -229,12 +327,12 @@ async function main() {
 		return;
 	}
 
-	const version = ensureVersionAlignment();
+	ensureCleanWorktree();
+	ensureOnMainBranch();
+	const version = await resolveReleaseVersion();
 	const tag = `v${ version }`;
 
 	console.log( `Preparing release ${ tag }` );
-	ensureCleanWorktree();
-	ensureOnMainBranch();
 	ensureTagDoesNotExist( tag );
 
 	console.log( 'Running verification and build steps...' );
