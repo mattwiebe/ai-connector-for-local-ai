@@ -7,11 +7,14 @@ namespace WordPress\HomeInference\Tests\PHPUnit;
 use WP_Error;
 use WP_UnitTestCase;
 use WordPress\AiClient\Providers\Http\DTO\Response;
+use WordPress\HomeInference\Metadata\ActualComputerModelMetadataDirectory;
 use WordPress\HomeInference\Metadata\HomeInferenceModelMetadataDirectory;
 use function WordPress\HomeInference\allow_home_inference_safe_remote_requests;
 use function WordPress\HomeInference\fetch_proxy_models;
 use function WordPress\HomeInference\sanitize_api_key;
+use function WordPress\HomeInference\sanitize_actual_computer_model_id;
 use function WordPress\HomeInference\sanitize_model_id;
+use function WordPress\HomeInference\should_allow_actual_computer_request;
 use function WordPress\HomeInference\should_allow_home_inference_request;
 
 final class PluginFunctionsTest extends WP_UnitTestCase {
@@ -22,6 +25,8 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		update_option( 'home_inference_endpoint_url', 'https://proxy.example.test' );
 		update_option( 'connectors_ai_home_inference_api_key', 'secret-token' );
 		delete_option( 'home_inference_model_id' );
+		update_option( 'connectors_ai_actual_computer_api_key', 'actual-secret-token' );
+		delete_option( 'actual_computer_model_id' );
 		$_POST = array();
 	}
 
@@ -150,6 +155,11 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		$this->assertFalse( should_allow_home_inference_request( 'https://api.openai.com/v1/models' ) );
 	}
 
+	public function test_should_allow_actual_computer_request_matches_configured_endpoint(): void {
+		$this->assertTrue( should_allow_actual_computer_request( 'https://api.actual.inc/v1/models' ) );
+		$this->assertFalse( should_allow_actual_computer_request( 'https://proxy.example.test/v1/models' ) );
+	}
+
 	public function test_allow_home_inference_safe_remote_requests_disables_unsafe_url_rejection_only_for_home_inference(): void {
 		$allowed_args = allow_home_inference_safe_remote_requests(
 			array(
@@ -167,6 +177,17 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 
 		$this->assertFalse( $allowed_args['reject_unsafe_urls'] );
 		$this->assertTrue( $other_args['reject_unsafe_urls'] );
+	}
+
+	public function test_allow_home_inference_safe_remote_requests_disables_unsafe_url_rejection_for_actual_computer(): void {
+		$allowed_args = allow_home_inference_safe_remote_requests(
+			array(
+				'reject_unsafe_urls' => true,
+			),
+			'https://api.actual.inc/v1/models'
+		);
+
+		$this->assertFalse( $allowed_args['reject_unsafe_urls'] );
 	}
 
 	public function test_model_directory_falls_back_to_available_models_when_selected_model_is_missing(): void {
@@ -199,5 +220,66 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 
 		$this->assertCount( 2, $models );
 		$this->assertSame( array( 'llama3.2', 'qwen2.5' ), wp_list_pluck( $models, 'id' ) );
+	}
+
+	public function test_sanitize_actual_computer_model_id_accepts_live_model(): void {
+		add_filter(
+			'pre_http_request',
+			static function ( $response, $args, $url ) {
+				if ( 'https://api.actual.inc/v1/models' !== $url ) {
+					return $response;
+				}
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'data' => array(
+								array( 'id' => 'actual-large' ),
+								array( 'id' => 'actual-small' ),
+							),
+						)
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$this->assertSame( 'actual-small', sanitize_actual_computer_model_id( 'actual-small' ) );
+
+		remove_all_filters( 'pre_http_request' );
+	}
+
+	public function test_actual_model_directory_falls_back_to_available_models_when_selected_model_is_missing(): void {
+		if ( ! class_exists( \WordPress\AiClient\Providers\OpenAiCompatibleImplementation\AbstractOpenAiCompatibleModelMetadataDirectory::class ) ) {
+			$this->markTestSkipped( 'WordPress AI Client model metadata directory classes are not available in this test environment.' );
+		}
+
+		update_option( 'actual_computer_model_id', 'missing-model' );
+
+		$directory  = new ActualComputerModelMetadataDirectory();
+		$reflection = new \ReflectionMethod( $directory, 'parseResponseToModelMetadataList' );
+		$reflection->setAccessible( true );
+
+		$response = new Response(
+			200,
+			array(
+				'content-type' => 'application/json',
+			),
+			wp_json_encode(
+				array(
+					'data' => array(
+						array( 'id' => 'actual-large' ),
+						array( 'id' => 'actual-small' ),
+					),
+				)
+			)
+		);
+
+		$models = $reflection->invoke( $directory, $response );
+
+		$this->assertCount( 2, $models );
+		$this->assertSame( array( 'actual-large', 'actual-small' ), wp_list_pluck( $models, 'id' ) );
 	}
 }

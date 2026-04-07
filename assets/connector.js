@@ -1,9 +1,8 @@
 /**
- * Home Inference — Connector UI override.
+ * Managed connectors UI override.
  *
- * Registers a custom render component for the Home Inference connector
- * in the Connectors admin page, replacing the default API key form
- * with a link to the plugin's setup page.
+ * Replaces the default API key form with a link to the plugin's setup page for
+ * each provider managed by this plugin.
  *
  * @package WordPress\HomeInference
  */
@@ -15,28 +14,25 @@ import {
 
 const { createElement: h } = window.React ?? window.wp.element;
 
-// Read data injected via the script_module_data filter.
 function getData() {
 	try {
-		const el = document.getElementById(
-			'wp-script-module-data-home-inference-connector'
-		);
+		const el = document.getElementById( 'wp-script-module-data-managed-connectors' );
 		return JSON.parse( el?.textContent ?? '{}' );
 	} catch {
 		return {};
 	}
 }
 
-const { setupUrl, isConnected } = getData();
+const { connectors = {} } = getData();
 
 /**
  * Custom connector component that shows a "Set up" / "Settings" button
  * linking to the plugin's own setup page.
  */
-function HomeInferenceConnector( { name, description, logo } ) {
-	const label = isConnected ? 'Settings' : 'Set up';
+function ManagedConnector( { connector, name, description, logo } ) {
+	const label = connector.isConnected ? 'Settings' : 'Set up';
 
-	const badge = isConnected
+	const badge = connector.isConnected
 		? h(
 				'span',
 				{
@@ -57,7 +53,7 @@ function HomeInferenceConnector( { name, description, logo } ) {
 	const button = h(
 		'a',
 		{
-			href: setupUrl,
+			href: connector.setupUrl,
 			className: 'components-button is-secondary is-compact',
 			style: { textDecoration: 'none' },
 		},
@@ -77,10 +73,10 @@ function HomeInferenceConnector( { name, description, logo } ) {
 	} );
 }
 
-// Override the connector registration.  registerConnector is additive —
-// calling it again with the same slug replaces the previous entry.
-registerConnector( 'home-inference', {
-	name: 'Home Inference',
-	description: 'Run AI inference on your own hardware using local models.',
-	render: HomeInferenceConnector,
+Object.entries( connectors ).forEach( ( [ slug, connector ] ) => {
+	registerConnector( slug, {
+		name: connector.name,
+		description: connector.description,
+		render: ( props ) => h( ManagedConnector, { ...props, connector } ),
+	} );
 } );
