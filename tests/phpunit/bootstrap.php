@@ -16,9 +16,9 @@ if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 require_once dirname( __DIR__, 2 ) . '/vendor/autoload.php';
 require_once $_tests_dir . '/includes/functions.php';
 
-function _home_inference_manually_load_plugin(): void {
+function _local_ai_manually_load_plugin(): void {
 	require dirname( __DIR__, 2 ) . '/plugin.php';
 }
-tests_add_filter( 'muplugins_loaded', '_home_inference_manually_load_plugin' );
+tests_add_filter( 'muplugins_loaded', '_local_ai_manually_load_plugin' );
 
 require $_tests_dir . '/includes/bootstrap.php';

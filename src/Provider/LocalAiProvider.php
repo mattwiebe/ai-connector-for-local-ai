@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WordPress\HomeInference\Provider;
+namespace WordPress\AiConnectorForLocalAi\Provider;
 
 use WordPress\AiClient\Providers\ApiBasedImplementation\AbstractApiProvider;
 use WordPress\AiClient\Providers\ApiBasedImplementation\ListModelsApiBasedProviderAvailability;
@@ -14,17 +14,17 @@ use WordPress\AiClient\Providers\Http\Enums\RequestAuthenticationMethod;
 use WordPress\AiClient\Common\Exception\RuntimeException;
 use WordPress\AiClient\Providers\Models\Contracts\ModelInterface;
 use WordPress\AiClient\Providers\Models\DTO\ModelMetadata;
-use WordPress\HomeInference\Metadata\HomeInferenceModelMetadataDirectory;
-use WordPress\HomeInference\Models\HomeInferenceTextGenerationModel;
+use WordPress\AiConnectorForLocalAi\Metadata\LocalAiModelMetadataDirectory;
+use WordPress\AiConnectorForLocalAi\Models\LocalAiTextGenerationModel;
 
 /**
- * AI Provider for Home Inference.
+ * AI provider for Local AI.
  *
  * Routes requests to a local inference server via a secure tunnel.
  *
  * @since 0.1.0
  */
-class HomeInferenceProvider extends AbstractApiProvider {
+class LocalAiProvider extends AbstractApiProvider {
 
 	/**
 	 * {@inheritDoc}
@@ -32,7 +32,7 @@ class HomeInferenceProvider extends AbstractApiProvider {
 	 * @since 0.1.0
 	 */
 	protected static function baseUrl(): string {
-		$url = get_option( 'home_inference_endpoint_url', '' );
+		$url = get_option( 'local_ai_endpoint_url', '' );
 
 		if ( empty( $url ) ) {
 			return '';
@@ -52,7 +52,7 @@ class HomeInferenceProvider extends AbstractApiProvider {
 	): ModelInterface {
 		foreach ( $modelMetadata->getSupportedCapabilities() as $capability ) {
 			if ( $capability->isTextGeneration() ) {
-				return new HomeInferenceTextGenerationModel( $modelMetadata, $providerMetadata );
+				return new LocalAiTextGenerationModel( $modelMetadata, $providerMetadata );
 			}
 		}
 
@@ -66,12 +66,12 @@ class HomeInferenceProvider extends AbstractApiProvider {
 	 */
 	protected static function createProviderMetadata(): ProviderMetadata {
 		return new ProviderMetadata(
-			'home-inference',
-			'Home Inference',
+			'local-ai',
+			'Local AI',
 			ProviderTypeEnum::server(),
 			null,
 			RequestAuthenticationMethod::apiKey(),
-			__( 'Run AI inference on your own hardware using local models.', 'wp-home-inference' ),
+			__( 'Run AI inference on your own hardware using local models.', 'ai-connector-for-local-ai' ),
 			__DIR__ . '/../../assets/logo.svg'
 		);
 	}
@@ -91,6 +91,6 @@ class HomeInferenceProvider extends AbstractApiProvider {
 	 * @since 0.1.0
 	 */
 	protected static function createModelMetadataDirectory(): ModelMetadataDirectoryInterface {
-		return new HomeInferenceModelMetadataDirectory();
+		return new LocalAiModelMetadataDirectory();
 	}
 }

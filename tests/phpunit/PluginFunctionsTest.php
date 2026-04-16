@@ -2,29 +2,29 @@
 
 declare(strict_types=1);
 
-namespace WordPress\HomeInference\Tests\PHPUnit;
+namespace WordPress\AiConnectorForLocalAi\Tests\PHPUnit;
 
 use WP_Error;
 use WP_UnitTestCase;
 use WordPress\AiClient\Providers\Http\DTO\Response;
-use WordPress\HomeInference\Metadata\ActualComputerModelMetadataDirectory;
-use WordPress\HomeInference\Metadata\HomeInferenceModelMetadataDirectory;
-use function WordPress\HomeInference\allow_home_inference_safe_remote_requests;
-use function WordPress\HomeInference\fetch_proxy_models;
-use function WordPress\HomeInference\sanitize_api_key;
-use function WordPress\HomeInference\sanitize_actual_computer_model_id;
-use function WordPress\HomeInference\sanitize_model_id;
-use function WordPress\HomeInference\should_allow_actual_computer_request;
-use function WordPress\HomeInference\should_allow_home_inference_request;
+use WordPress\AiConnectorForLocalAi\Metadata\ActualComputerModelMetadataDirectory;
+use WordPress\AiConnectorForLocalAi\Metadata\LocalAiModelMetadataDirectory;
+use function WordPress\AiConnectorForLocalAi\allow_local_ai_safe_remote_requests;
+use function WordPress\AiConnectorForLocalAi\fetch_proxy_models;
+use function WordPress\AiConnectorForLocalAi\sanitize_api_key;
+use function WordPress\AiConnectorForLocalAi\sanitize_actual_computer_model_id;
+use function WordPress\AiConnectorForLocalAi\sanitize_local_ai_model_id;
+use function WordPress\AiConnectorForLocalAi\should_allow_actual_computer_request;
+use function WordPress\AiConnectorForLocalAi\should_allow_local_ai_request;
 
 final class PluginFunctionsTest extends WP_UnitTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
 
-		update_option( 'home_inference_endpoint_url', 'https://proxy.example.test' );
-		update_option( 'connectors_ai_home_inference_api_key', 'secret-token' );
-		delete_option( 'home_inference_model_id' );
+		update_option( 'local_ai_endpoint_url', 'https://proxy.example.test' );
+		update_option( 'connectors_ai_local_ai_api_key', 'secret-token' );
+		delete_option( 'local_ai_model_id' );
 		update_option( 'connectors_ai_actual_computer_api_key', 'actual-secret-token' );
 		delete_option( 'actual_computer_model_id' );
 		$_POST = array();
@@ -90,7 +90,7 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 
 		$this->assertInstanceOf( WP_Error::class, $models );
-		$this->assertSame( 'home_inference_models_invalid_response', $models->get_error_code() );
+		$this->assertSame( 'local_ai_models_invalid_response', $models->get_error_code() );
 	}
 
 	public function test_sanitize_model_id_accepts_live_model(): void {
@@ -117,7 +117,7 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 			3
 		);
 
-		$this->assertSame( 'qwen2.5', sanitize_model_id( 'qwen2.5' ) );
+		$this->assertSame( 'qwen2.5', sanitize_local_ai_model_id( 'qwen2.5' ) );
 
 		remove_all_filters( 'pre_http_request' );
 	}
@@ -145,14 +145,14 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 			3
 		);
 
-		$this->assertSame( '', sanitize_model_id( 'unknown-model' ) );
+		$this->assertSame( '', sanitize_local_ai_model_id( 'unknown-model' ) );
 
 		remove_all_filters( 'pre_http_request' );
 	}
 
-	public function test_should_allow_home_inference_request_matches_configured_endpoint(): void {
-		$this->assertTrue( should_allow_home_inference_request( 'https://proxy.example.test/v1/models' ) );
-		$this->assertFalse( should_allow_home_inference_request( 'https://api.openai.com/v1/models' ) );
+	public function test_should_allow_local_ai_request_matches_configured_endpoint(): void {
+		$this->assertTrue( should_allow_local_ai_request( 'https://proxy.example.test/v1/models' ) );
+		$this->assertFalse( should_allow_local_ai_request( 'https://api.openai.com/v1/models' ) );
 	}
 
 	public function test_should_allow_actual_computer_request_matches_configured_endpoint(): void {
@@ -160,15 +160,15 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		$this->assertFalse( should_allow_actual_computer_request( 'https://proxy.example.test/v1/models' ) );
 	}
 
-	public function test_allow_home_inference_safe_remote_requests_disables_unsafe_url_rejection_only_for_home_inference(): void {
-		$allowed_args = allow_home_inference_safe_remote_requests(
+	public function test_allow_local_ai_safe_remote_requests_disables_unsafe_url_rejection_only_for_local_ai(): void {
+		$allowed_args = allow_local_ai_safe_remote_requests(
 			array(
 				'reject_unsafe_urls' => true,
 			),
 			'https://proxy.example.test/v1/models'
 		);
 
-		$other_args = allow_home_inference_safe_remote_requests(
+		$other_args = allow_local_ai_safe_remote_requests(
 			array(
 				'reject_unsafe_urls' => true,
 			),
@@ -179,8 +179,8 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		$this->assertTrue( $other_args['reject_unsafe_urls'] );
 	}
 
-	public function test_allow_home_inference_safe_remote_requests_disables_unsafe_url_rejection_for_actual_computer(): void {
-		$allowed_args = allow_home_inference_safe_remote_requests(
+	public function test_allow_local_ai_safe_remote_requests_disables_unsafe_url_rejection_for_actual_computer(): void {
+		$allowed_args = allow_local_ai_safe_remote_requests(
 			array(
 				'reject_unsafe_urls' => true,
 			),
@@ -195,9 +195,9 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 			$this->markTestSkipped( 'WordPress AI Client model metadata directory classes are not available in this test environment.' );
 		}
 
-		update_option( 'home_inference_model_id', 'missing-model' );
+		update_option( 'local_ai_model_id', 'missing-model' );
 
-		$directory = new HomeInferenceModelMetadataDirectory();
+		$directory = new LocalAiModelMetadataDirectory();
 		$reflection = new \ReflectionMethod( $directory, 'parseResponseToModelMetadataList' );
 		$reflection->setAccessible( true );
 

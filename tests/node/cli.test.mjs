@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { helpText, normalizeArgs, VERSION } from '../../bin/wp-home-inference.mjs';
+import { helpText, normalizeArgs, VERSION } from '../../bin/ai-connector-for-local-ai.mjs';
 
 test( 'normalizeArgs handles help and version flags locally', () => {
 	assert.deepEqual( normalizeArgs( [ '--help' ] ), { action: 'help', forwardedArgs: [] } );

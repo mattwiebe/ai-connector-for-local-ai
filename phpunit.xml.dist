@@ -4,7 +4,7 @@
          failOnRisky="true"
          failOnWarning="true">
     <testsuites>
-        <testsuite name="Home Inference">
+        <testsuite name="AI Connector for Local AI">
             <directory>tests/phpunit</directory>
         </testsuite>
     </testsuites>

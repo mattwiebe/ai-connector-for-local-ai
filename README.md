@@ -1,12 +1,12 @@
-# Home Inference
+# AI Connector for Local AI
 
-Home Inference is a WordPress AI provider plugin plus a small local proxy for running inference against models on your own machine.
+AI Connector for Local AI is a WordPress AI provider plugin plus a small local proxy for running inference against models on your own machine.
 
 It is built for WordPress 7.0+ and the new Connectors primitives. The WordPress plugin runs on the remote site. The local proxy runs on a machine you control, talks to an OpenAI-compatible local backend such as Ollama or LM Studio, and exposes that backend to WordPress through an authenticated Tailscale Funnel.
 
 ## What It Does
 
-- Registers a `home-inference` AI provider with the WordPress AI Client.
+- Registers a `local-ai` AI provider with the WordPress AI Client.
 - Adds a Settings screen for entering the proxy URL, API key, and selected model.
 - Loads model choices from the real proxied `/v1/models` endpoint.
 - Restricts the provider to the selected model so WordPress auto-discovery consistently uses it.
@@ -34,9 +34,9 @@ It is built for WordPress 7.0+ and the new Connectors primitives. The WordPress 
 
 ## WordPress Plugin Setup
 
-1. Copy this plugin into `wp-content/plugins/wp-home-inference`.
+1. Copy this plugin into `wp-content/plugins/ai-connector-for-local-ai`.
 2. Activate the plugin in WordPress.
-3. Open `Settings > Home Inference`.
+3. Open `Settings > Connectors` or the dedicated Local AI settings page.
 4. Enter:
    - the proxy endpoint URL,
    - the shared API key,
@@ -49,7 +49,7 @@ The Connectors screen links back to this setup page.
 Preferred install path:
 
 ```bash
-npm install -g @mattwiebe/wp-home-inference
+npm install -g @mattwiebe/ai-connector-for-local-ai
 ```
 
 Then initialize and run the proxy with:
@@ -73,8 +73,8 @@ wphi uninstall
 You can also run it without a global install:
 
 ```bash
-npx @mattwiebe/wp-home-inference init
-npx @mattwiebe/wp-home-inference up
+npx @mattwiebe/ai-connector-for-local-ai init
+npx @mattwiebe/ai-connector-for-local-ai up
 ```
 
 For local development from this repo, you can still use:
@@ -110,7 +110,7 @@ To reconfigure later:
 wphi init
 ```
 
-On macOS, `wphi install` or `npm run service:install` writes a LaunchAgent at `~/Library/LaunchAgents/com.mattwiebe.wp-home-inference.plist` so the proxy can keep running in the background across logins.
+On macOS, `wphi install` or `npm run service:install` writes a LaunchAgent at `~/Library/LaunchAgents/com.mattwiebe.ai-connector-for-local-ai.plist` so the proxy can keep running in the background across logins.
 
 To rotate the shared API key in the persisted `.env` file and print the new key:
 
@@ -213,7 +213,7 @@ npm run build:plugin
 That creates:
 
 ```text
-dist/wp-home-inference-plugin.zip
+dist/ai-connector-for-local-ai-plugin.zip
 ```
 
 Build the npm package tarball locally:
@@ -225,7 +225,7 @@ npm run build:npm
 That creates:
 
 ```text
-dist/mattwiebe-wp-home-inference-<version>.tgz
+dist/mattwiebe-ai-connector-for-local-ai-<version>.tgz
 ```
 
 ## GitHub Automation
@@ -243,10 +243,10 @@ This repository ships with GitHub Actions workflows for:
 To cut a release:
 
 1. Make sure `package.json` and the plugin header version are aligned.
-2. Create and push a semver tag like `v0.1.4`.
+2. Create and push a semver tag like `v0.2.0`.
 3. GitHub Actions will build:
-   - `dist/wp-home-inference-plugin.zip`
-   - `dist/mattwiebe-wp-home-inference-<version>.tgz`
+   - `dist/ai-connector-for-local-ai-plugin.zip`
+   - `dist/mattwiebe-ai-connector-for-local-ai-<version>.tgz`
 4. The workflow will attach both files to the GitHub release automatically.
 
 For Packagist auto-refresh after tag pushes, add these repository secrets in GitHub:
@@ -263,7 +263,7 @@ This repository is ready to be consumed as a Composer package from Packagist or 
 The package name is:
 
 ```text
-mattwiebe/wp-home-inference
+mattwiebe/ai-connector-for-local-ai
 ```
 
 It uses Composer package type `wordpress-plugin`, so Composer-based WordPress projects can install it into `wp-content/plugins` when the root project uses `composer/installers` with the usual installer paths.
@@ -274,7 +274,7 @@ Example root project setup:
 {
   "require": {
     "composer/installers": "^2.3",
-    "mattwiebe/wp-home-inference": "^0.1"
+    "mattwiebe/ai-connector-for-local-ai": "^0.2"
   },
   "extra": {
     "installer-paths": {
@@ -291,7 +291,7 @@ If you want to consume it directly from GitHub before Packagist metadata refresh
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/mattwiebe/wp-home-inference"
+      "url": "https://github.com/mattwiebe/ai-connector-for-local-ai"
     }
   ]
 }
@@ -299,28 +299,28 @@ If you want to consume it directly from GitHub before Packagist metadata refresh
 
 ## WP Packages Compatibility
 
-[WP Packages](https://wp-packages.org/docs) mirrors active plugins and themes from the WordPress.org directory under names like `wp-plugin/plugin-name`. Because Home Inference is hosted on GitHub and is not currently in the WordPress.org plugin directory, it will not appear there yet.
+[WP Packages](https://wp-packages.org/docs) mirrors active plugins and themes from the WordPress.org directory under names like `wp-plugin/plugin-name`. Because AI Connector for Local AI is hosted on GitHub and is not currently in the WordPress.org plugin directory, it will not appear there yet.
 
 The repo is still compatible with the same Composer install flow described in the WP Packages docs:
 
 - it uses Composer package type `wordpress-plugin`
-- it sets a stable installer name of `wp-home-inference`
+- it sets a stable installer name of `ai-connector-for-local-ai`
 - it works with the same root-level `composer/installers` configuration used for WP Packages packages
 
-So the practical path today is `mattwiebe/wp-home-inference` via Packagist or a VCS repository. If the plugin is later published to WordPress.org, then a WP Packages entry would become possible under a `wp-plugin/...` package name.
+So the practical path today is `mattwiebe/ai-connector-for-local-ai` via Packagist or a VCS repository. If the plugin is later published to WordPress.org, then a WP Packages entry would become possible under a `wp-plugin/...` package name.
 
 ## npm Package
 
 The npm package name is:
 
 ```text
-@mattwiebe/wp-home-inference
+@mattwiebe/ai-connector-for-local-ai
 ```
 
 Preferred usage:
 
 ```bash
-npm install -g @mattwiebe/wp-home-inference
+npm install -g @mattwiebe/ai-connector-for-local-ai
 wphi init
 wphi up
 ```
@@ -338,18 +338,18 @@ wphi uninstall
 It also works without installation:
 
 ```bash
-npx @mattwiebe/wp-home-inference up
-npx @mattwiebe/wp-home-inference init
+npx @mattwiebe/ai-connector-for-local-ai up
+npx @mattwiebe/ai-connector-for-local-ai init
 ```
 
-The package also exposes `wp-home-inference` as a longer alias, but `wphi` is the intended global command.
+The package also exposes `ai-connector-for-local-ai` as a longer alias, but `wphi` is the intended global command.
 
 For convenience, the package also exposes the shorter `wph` alias.
 
 The npm CLI stores its persistent config in:
 
 ```text
-~/.config/wp-home-inference/.env
+~/.config/ai-connector-for-local-ai/.env
 ```
 
 That keeps `npx` usage stateful across runs instead of writing config into a temporary install directory.
@@ -360,7 +360,7 @@ Based on npm’s current docs for scoped public packages, the publish flow is:
 
 1. Create or sign in to your npm account with `npm login`.
 2. Make sure the package name is available:
-   `npm view @mattwiebe/wp-home-inference`
+   `npm view @mattwiebe/ai-connector-for-local-ai`
 3. Inspect exactly what would be published:
    `npm pack --dry-run`
 4. Publish the next version:

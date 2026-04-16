@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WordPress\HomeInference\Models;
+namespace WordPress\AiConnectorForLocalAi\Models;
 
 use WordPress\AiClient\Common\Exception\RuntimeException;
 use WordPress\AiClient\Messages\DTO\Message;
@@ -14,7 +14,7 @@ use WordPress\AiClient\Providers\Http\DTO\RequestOptions;
 use WordPress\AiClient\Providers\Http\Enums\HttpMethodEnum;
 use WordPress\AiClient\Providers\Models\DTO\ModelMetadata;
 use WordPress\AiClient\Providers\OpenAiCompatibleImplementation\AbstractOpenAiCompatibleTextGenerationModel;
-use WordPress\HomeInference\Provider\ActualComputerProvider;
+use WordPress\AiConnectorForLocalAi\Provider\ActualComputerProvider;
 
 /**
  * Text generation model for Actual Computer using an OpenAI-compatible API.

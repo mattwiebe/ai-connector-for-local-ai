@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WordPress\HomeInference\Models;
+namespace WordPress\AiConnectorForLocalAi\Models;
 
 use WordPress\AiClient\Providers\Http\DTO\Request;
 use WordPress\AiClient\Providers\Http\DTO\RequestOptions;
@@ -10,17 +10,17 @@ use WordPress\AiClient\Providers\Http\Enums\HttpMethodEnum;
 use WordPress\AiClient\Providers\OpenAiCompatibleImplementation\AbstractOpenAiCompatibleTextGenerationModel;
 use WordPress\AiClient\Providers\DTO\ProviderMetadata;
 use WordPress\AiClient\Providers\Models\DTO\ModelMetadata;
-use WordPress\HomeInference\Provider\HomeInferenceProvider;
+use WordPress\AiConnectorForLocalAi\Provider\LocalAiProvider;
 
 /**
- * Text generation model for Home Inference using the OpenAI-compatible Chat Completions API.
+ * Text generation model for Local AI using the OpenAI-compatible Chat Completions API.
  *
  * This works with any local inference server that exposes an OpenAI-compatible
  * endpoint (Ollama, llama.cpp, LM Studio, vLLM, etc.).
  *
  * @since 0.1.0
  */
-class HomeInferenceTextGenerationModel extends AbstractOpenAiCompatibleTextGenerationModel {
+class LocalAiTextGenerationModel extends AbstractOpenAiCompatibleTextGenerationModel {
 
 	/**
 	 * Constructor.
@@ -57,7 +57,7 @@ class HomeInferenceTextGenerationModel extends AbstractOpenAiCompatibleTextGener
 	): Request {
 		return new Request(
 			$method,
-			HomeInferenceProvider::url( $path ),
+			LocalAiProvider::url( $path ),
 			$headers,
 			$data,
 			$this->getRequestOptions()

@@ -13,7 +13,7 @@ const PACKAGE_JSON_PATH = join( ROOT_DIR, 'package.json' );
 const PACKAGE_LOCK_PATH = join( ROOT_DIR, 'package-lock.json' );
 const PLUGIN_PATH = join( ROOT_DIR, 'plugin.php' );
 const RELEASE_WORKFLOW = 'release.yml';
-const REPO = 'mattwiebe/wp-home-inference';
+const REPO = 'mattwiebe/ai-connector-for-local-ai';
 
 function run( command, args, options = {} ) {
 	return execFileSync( command, args, {
@@ -315,7 +315,7 @@ function publishNpmRelease( otp ) {
 function printManualNpmStep( version ) {
 	console.log( '' );
 	console.log( 'npm publish remains manual by default for this repo.' );
-	console.log( `Run next: npm publish --otp=<code>  # publishes @mattwiebe/wp-home-inference@${ version }` );
+	console.log( `Run next: npm publish --otp=<code>  # publishes @mattwiebe/ai-connector-for-local-ai@${ version }` );
 }
 
 async function main() {
@@ -377,9 +377,9 @@ async function main() {
 	}
 
 	if ( options.publishNpm ) {
-		console.log( `  npm: published @mattwiebe/wp-home-inference@${ version }` );
+		console.log( `  npm: published @mattwiebe/ai-connector-for-local-ai@${ version }` );
 	} else {
-		console.log( `  npm: pending manual publish for @mattwiebe/wp-home-inference@${ version }` );
+		console.log( `  npm: pending manual publish for @mattwiebe/ai-connector-for-local-ai@${ version }` );
 	}
 }
 

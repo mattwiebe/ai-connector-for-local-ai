@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WordPress\HomeInference\Metadata;
+namespace WordPress\AiConnectorForLocalAi\Metadata;
 
 use WordPress\AiClient\Messages\Enums\ModalityEnum;
 use WordPress\AiClient\Providers\Http\DTO\Request;
@@ -14,7 +14,7 @@ use WordPress\AiClient\Providers\Models\DTO\SupportedOption;
 use WordPress\AiClient\Providers\Models\Enums\CapabilityEnum;
 use WordPress\AiClient\Providers\Models\Enums\OptionEnum;
 use WordPress\AiClient\Providers\OpenAiCompatibleImplementation\AbstractOpenAiCompatibleModelMetadataDirectory;
-use WordPress\HomeInference\Provider\HomeInferenceProvider;
+use WordPress\AiConnectorForLocalAi\Provider\LocalAiProvider;
 
 /**
  * Model metadata directory that discovers models from a local inference server's
@@ -26,7 +26,7 @@ use WordPress\HomeInference\Provider\HomeInferenceProvider;
  *     data?: list<array{id: string, owned_by?: string}>
  * }
  */
-class HomeInferenceModelMetadataDirectory extends AbstractOpenAiCompatibleModelMetadataDirectory {
+class LocalAiModelMetadataDirectory extends AbstractOpenAiCompatibleModelMetadataDirectory {
 
 	/**
 	 * {@inheritDoc}
@@ -37,8 +37,8 @@ class HomeInferenceModelMetadataDirectory extends AbstractOpenAiCompatibleModelM
 	 * @since 0.1.0
 	 */
 	protected function getBaseCacheKey(): string {
-		$endpoint_url = untrailingslashit( (string) get_option( 'home_inference_endpoint_url', '' ) );
-		$selected_model_id = (string) get_option( 'home_inference_model_id', '' );
+		$endpoint_url = untrailingslashit( (string) get_option( 'local_ai_endpoint_url', '' ) );
+		$selected_model_id = (string) get_option( 'local_ai_model_id', '' );
 
 		return parent::getBaseCacheKey() . '_' . md5( $endpoint_url . '|' . $selected_model_id );
 	}
@@ -56,7 +56,7 @@ class HomeInferenceModelMetadataDirectory extends AbstractOpenAiCompatibleModelM
 	): Request {
 		return new Request(
 			$method,
-			HomeInferenceProvider::url( $path ),
+			LocalAiProvider::url( $path ),
 			$headers,
 			$data
 		);
@@ -72,7 +72,7 @@ class HomeInferenceModelMetadataDirectory extends AbstractOpenAiCompatibleModelM
 		$responseData = $response->getData();
 
 		if ( ! isset( $responseData['data'] ) || ! $responseData['data'] ) {
-			throw ResponseException::fromMissingData( 'Home Inference', 'data' );
+			throw ResponseException::fromMissingData( 'Local AI', 'data' );
 		}
 
 		$capabilities = array(
@@ -98,7 +98,7 @@ class HomeInferenceModelMetadataDirectory extends AbstractOpenAiCompatibleModelM
 
 		$models = array();
 		$matched_models = array();
-		$selected_model_id = trim( (string) get_option( 'home_inference_model_id', '' ) );
+		$selected_model_id = trim( (string) get_option( 'local_ai_model_id', '' ) );
 
 		foreach ( (array) $responseData['data'] as $model_data ) {
 			if ( ! is_array( $model_data ) || ! isset( $model_data['id'] ) ) {

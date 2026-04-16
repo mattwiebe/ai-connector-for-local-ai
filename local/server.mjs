@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Home Inference Proxy Server
+ * Local AI Proxy Server
  *
  * A lightweight authenticated proxy that sits in front of a local inference
  * server (Ollama, LM Studio, etc.) and exposes it securely via Tailscale
@@ -23,13 +23,14 @@
  *   --api-key <key>         Shared secret for authentication (auto-generated if omitted).
  *   --no-tunnel             Skip Tailscale Funnel (if you handle networking yourself).
  *
- * @package WordPress\HomeInference
+ * @package WordPress\AiConnectorForLocalAi
  */
 
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
 import { execFileSync, execFile } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
@@ -52,7 +53,8 @@ function hasFlag( name ) {
 
 const IS_INIT  = 'init' === process.argv[ 2 ];
 const SCRIPT_DIR = dirname( fileURLToPath( import.meta.url ) );
-const ENV_PATH   = process.env.WP_HOME_INFERENCE_ENV_PATH || join( SCRIPT_DIR, '.env' );
+const ENV_PATH = process.env.AI_CONNECTOR_FOR_LOCAL_AI_ENV_PATH
+	|| join( homedir(), '.config', 'ai-connector-for-local-ai', '.env' );
 const PORT_ARG            = arg( 'port', '' );
 const FUNNEL_PORT_ARG     = arg( 'funnel-port', '' );
 const BACKEND_ARG         = arg( 'backend', '' );
@@ -64,7 +66,7 @@ const FUNNEL_PORT_CHOICES = [
 	{ port: 10000, label: '10000' },
 ];
 const ALLOWED_FUNNEL_PORTS = FUNNEL_PORT_CHOICES.map( ( choice ) => choice.port );
-const PLUGIN_RELEASES_URL = 'https://github.com/mattwiebe/wp-home-inference/releases/latest';
+const PLUGIN_RELEASES_URL = 'https://github.com/mattwiebe/ai-connector-for-local-ai/releases/latest';
 let PORT = 13531;
 let BACKEND = '';
 let API_KEY = '';
@@ -138,7 +140,7 @@ function writeConfig( config ) {
 	mkdirSync( dirname( ENV_PATH ), { recursive: true } );
 
 	const contents = [
-		'# Home Inference local configuration',
+		'# Local AI configuration',
 		`PORT=${ envValue( config.port ) }`,
 		`FUNNEL_PORT=${ envValue( config.funnelPort ) }`,
 		`BACKEND_URL=${ envValue( config.backendUrl ) }`,
@@ -398,7 +400,7 @@ async function promptYesNo( question, defaultValue = true ) {
 
 async function runInit() {
 	console.log( '' );
-	console.log( '  Initializing Home Inference configuration...' );
+	console.log( '  Initializing Local AI configuration...' );
 	console.log( '' );
 
 	const noTunnel = NO_TUNNEL_FLAG ? true : ! await promptYesNo( '  Enable Tailscale Funnel?', true );
@@ -710,7 +712,7 @@ async function main() {
 	const server = createServer( handler );
 	server.listen( PORT, '0.0.0.0', () => {
 		console.log( '' );
-		console.log( '  Home Inference Proxy' );
+		console.log( '  Local AI Proxy' );
 		console.log( '  ────────────────────────────────────────' );
 		console.log( `  Listening on   http://0.0.0.0:${ PORT }` );
 		console.log( `  Backend        ${ BACKEND }` );

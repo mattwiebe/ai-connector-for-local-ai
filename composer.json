@@ -1,5 +1,5 @@
 {
-    "name": "mattwiebe/wp-home-inference",
+    "name": "mattwiebe/ai-connector-for-local-ai",
     "description": "WordPress AI provider plugin and local proxy for self-hosted inference.",
     "type": "wordpress-plugin",
     "keywords": [
@@ -10,7 +10,7 @@
         "tailscale",
         "inference"
     ],
-    "homepage": "https://github.com/mattwiebe/wp-home-inference",
+    "homepage": "https://github.com/mattwiebe/ai-connector-for-local-ai",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
@@ -19,9 +19,9 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/mattwiebe/wp-home-inference/issues",
-        "source": "https://github.com/mattwiebe/wp-home-inference",
-        "docs": "https://github.com/mattwiebe/wp-home-inference#readme"
+        "issues": "https://github.com/mattwiebe/ai-connector-for-local-ai/issues",
+        "source": "https://github.com/mattwiebe/ai-connector-for-local-ai",
+        "docs": "https://github.com/mattwiebe/ai-connector-for-local-ai#readme"
     },
     "require": {
         "php": "^7.4 || ^8.0"
@@ -32,7 +32,7 @@
         ]
     },
     "extra": {
-        "installer-name": "wp-home-inference",
+        "installer-name": "ai-connector-for-local-ai",
         "branch-alias": {
             "dev-main": "0.2.x-dev"
         }

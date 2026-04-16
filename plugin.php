@@ -1,27 +1,27 @@
 <?php
 /**
- * Plugin Name: Home Inference
- * Plugin URI: https://github.com/mattwiebe/wp-home-inference
+ * Plugin Name: AI Connector for Local AI
+ * Plugin URI: https://github.com/mattwiebe/ai-connector-for-local-ai
  * Description: AI providers for routing inference to your own machine or to an Actual Computer endpoint.
  * Requires at least: 7.0
  * Requires PHP: 7.4
- * Version: 0.1.6
+ * Version: 0.2.0
  * Author: Matt
  * License: GPL-2.0-or-later
  * License URI: https://spdx.org/licenses/GPL-2.0-or-later.html
- * Text Domain: wp-home-inference
+ * Text Domain: ai-connector-for-local-ai
  *
- * @package WordPress\HomeInference
+ * @package WordPress\AiConnectorForLocalAi
  */
 
 declare(strict_types=1);
 
-namespace WordPress\HomeInference;
+namespace WordPress\AiConnectorForLocalAi;
 
 use WordPress\AiClient\AiClient;
 use WordPress\AiClient\Providers\Http\DTO\ApiKeyRequestAuthentication;
-use WordPress\HomeInference\Provider\ActualComputerProvider;
-use WordPress\HomeInference\Provider\HomeInferenceProvider;
+use WordPress\AiConnectorForLocalAi\Provider\ActualComputerProvider;
+use WordPress\AiConnectorForLocalAi\Provider\LocalAiProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	return;
@@ -69,73 +69,73 @@ function provider_definitions(): array {
 	}
 
 	$definitions = array(
-		'home-inference' => array(
-			'slug'                  => 'home-inference',
-			'provider_class'        => HomeInferenceProvider::class,
-			'name'                  => __( 'Home Inference', 'wp-home-inference' ),
-			'description'           => __( 'Run AI inference on your own hardware using local models.', 'wp-home-inference' ),
-			'endpoint_option'       => 'home_inference_endpoint_url',
-			'api_key_option'        => 'connectors_ai_home_inference_api_key',
-			'model_option'          => 'home_inference_model_id',
-			'settings_group'        => 'home_inference',
-			'admin_page'            => 'home-inference',
+		'local-ai' => array(
+			'slug'                  => 'local-ai',
+			'provider_class'        => LocalAiProvider::class,
+			'name'                  => __( 'Local AI', 'ai-connector-for-local-ai' ),
+			'description'           => __( 'Run AI inference on your own hardware using local models.', 'ai-connector-for-local-ai' ),
+			'endpoint_option'       => 'local_ai_endpoint_url',
+			'api_key_option'        => 'connectors_ai_local_ai_api_key',
+			'model_option'          => 'local_ai_model_id',
+			'settings_group'        => 'local_ai',
+			'admin_page'            => 'local-ai',
 			'show_endpoint_field'   => true,
 			'connector_auth_method' => 'none',
 			'use_custom_connector_ui' => true,
-			'endpoint_label'        => __( 'Endpoint URL', 'wp-home-inference' ),
-			'endpoint_description'  => __( 'The URL of your Home Inference proxy.', 'wp-home-inference' ),
+			'endpoint_label'        => __( 'Endpoint URL', 'ai-connector-for-local-ai' ),
+			'endpoint_description'  => __( 'The URL of your Local AI proxy.', 'ai-connector-for-local-ai' ),
 			'endpoint_placeholder'  => 'https://your-machine.tail1234.ts.net',
-			'api_key_description'   => __( 'The API key shown when you started the proxy.', 'wp-home-inference' ),
-			'model_description'     => __( 'Loaded live from the proxy /v1/models endpoint. The selected model will be the one exposed by this connector.', 'wp-home-inference' ),
-			'model_invalid_message' => __( 'The selected model is not available from the Home Inference proxy.', 'wp-home-inference' ),
+			'api_key_description'   => __( 'The API key shown when you started the proxy.', 'ai-connector-for-local-ai' ),
+			'model_description'     => __( 'Loaded live from the proxy /v1/models endpoint. The selected model will be the one exposed by this connector.', 'ai-connector-for-local-ai' ),
+			'model_invalid_message' => __( 'The selected model is not available from the Local AI proxy.', 'ai-connector-for-local-ai' ),
 			'setup'                 => array(
-				'heading'      => __( 'Setup', 'wp-home-inference' ),
-				'introduction' => __( 'Connect this WordPress site to a local inference server (Ollama, llama.cpp, LM Studio, vLLM, etc.) running on your home computer.', 'wp-home-inference' ),
+				'heading'      => __( 'Setup', 'ai-connector-for-local-ai' ),
+				'introduction' => __( 'Connect this WordPress site to a local inference server (Ollama, llama.cpp, LM Studio, vLLM, etc.) running on your home computer.', 'ai-connector-for-local-ai' ),
 				'steps'        => array(
 					array(
-						'heading'  => __( 'Step 1: Start your local inference server', 'wp-home-inference' ),
-						'body'     => __( 'If you haven\'t already, install and start a local inference server. For example, with Ollama:', 'wp-home-inference' ),
+						'heading'  => __( 'Step 1: Start your local inference server', 'ai-connector-for-local-ai' ),
+						'body'     => __( 'If you haven\'t already, install and start a local inference server. For example, with Ollama:', 'ai-connector-for-local-ai' ),
 						'commands' => array( 'ollama serve' ),
 					),
 					array(
-						'heading' => __( 'Step 2: Install Tailscale', 'wp-home-inference' ),
-						'body'    => __( 'The proxy uses Tailscale Funnel to securely expose your local server to the internet, without port forwarding.', 'wp-home-inference' ),
+						'heading' => __( 'Step 2: Install Tailscale', 'ai-connector-for-local-ai' ),
+						'body'    => __( 'The proxy uses Tailscale Funnel to securely expose your local server to the internet, without port forwarding.', 'ai-connector-for-local-ai' ),
 						'html'    => sprintf(
 							/* translators: %s: Tailscale download URL. */
-							wp_kses_post( __( 'Install Tailscale from %s and run `tailscale up` to sign in.', 'wp-home-inference' ) ),
+							wp_kses_post( __( 'Install Tailscale from %s and run `tailscale up` to sign in.', 'ai-connector-for-local-ai' ) ),
 							'<a href="https://tailscale.com/download" target="_blank" rel="noreferrer noopener">tailscale.com/download</a>'
 						),
 					),
 					array(
-						'heading'  => __( 'Step 3: Install and start the Home Inference proxy', 'wp-home-inference' ),
-						'body'     => __( 'On your home computer, install the published CLI and run the setup command:', 'wp-home-inference' ),
-						'commands' => array( 'npm install -g @mattwiebe/wp-home-inference && wphi init', 'wphi up', 'wphi install' ),
+						'heading'  => __( 'Step 3: Install and start the Local AI proxy', 'ai-connector-for-local-ai' ),
+						'body'     => __( 'On your home computer, install the published CLI and run the setup command:', 'ai-connector-for-local-ai' ),
+						'commands' => array( 'npm install -g @mattwiebe/ai-connector-for-local-ai && wphi init', 'wphi up', 'wphi install' ),
 						'notes'    => array(
-							__( 'This configures the proxy, auto-detects your local backend, optionally starts Tailscale Funnel, and saves the connection details for future runs.', 'wp-home-inference' ),
-							__( 'If you are working from this repo instead of a global npm install, the equivalent commands are `npm run init`, `npm run up`, and `npm run service:install`.', 'wp-home-inference' ),
-							__( 'On macOS, the LaunchAgent can be managed later with `wphi start`, `wphi stop`, and `wphi uninstall`.', 'wp-home-inference' ),
+							__( 'This configures the proxy, auto-detects your local backend, optionally starts Tailscale Funnel, and saves the connection details for future runs.', 'ai-connector-for-local-ai' ),
+							__( 'If you are working from this repo instead of a global npm install, the equivalent commands are `npm run init`, `npm run up`, and `npm run service:install`.', 'ai-connector-for-local-ai' ),
+							__( 'On macOS, the LaunchAgent can be managed later with `wphi start`, `wphi stop`, and `wphi uninstall`.', 'ai-connector-for-local-ai' ),
 						),
 					),
 					array(
-						'heading' => __( 'Step 4: Enter the connection details below', 'wp-home-inference' ),
-						'body'    => __( 'Copy the Endpoint URL and API Key shown by the proxy into the form below.', 'wp-home-inference' ),
+						'heading' => __( 'Step 4: Enter the connection details below', 'ai-connector-for-local-ai' ),
+						'body'    => __( 'Copy the Endpoint URL and API Key shown by the proxy into the form below.', 'ai-connector-for-local-ai' ),
 					),
 				),
 			),
 			'info_card'             => array(
-				'heading'     => __( 'Server Info', 'wp-home-inference' ),
-				'description' => __( 'Your local proxy should be started with:', 'wp-home-inference' ),
+				'heading'     => __( 'Server Info', 'ai-connector-for-local-ai' ),
+				'description' => __( 'Your local proxy should be started with:', 'ai-connector-for-local-ai' ),
 				'commands'    => array( 'wphi up' ),
 				'notes'       => array(
-					__( 'Local development from this repo can also use `npm run up`.', 'wp-home-inference' ),
+					__( 'Local development from this repo can also use `npm run up`.', 'ai-connector-for-local-ai' ),
 				),
 			),
 		),
 		'actual-computer' => array(
 			'slug'                  => 'actual-computer',
 			'provider_class'        => ActualComputerProvider::class,
-			'name'                  => __( 'Actual Computer', 'wp-home-inference' ),
-			'description'           => __( 'Connect WordPress AI to an Actual Computer endpoint.', 'wp-home-inference' ),
+			'name'                  => __( 'Actual Computer', 'ai-connector-for-local-ai' ),
+			'description'           => __( 'Connect WordPress AI to an Actual Computer endpoint.', 'ai-connector-for-local-ai' ),
 			'endpoint_option'       => 'actual_computer_endpoint_url',
 			'api_key_option'        => 'connectors_ai_actual_computer_api_key',
 			'model_option'          => 'actual_computer_model_id',
@@ -147,28 +147,28 @@ function provider_definitions(): array {
 			'credentials_url'       => 'https://actual.inc/console/api',
 			'use_custom_connector_ui' => false,
 			'connector_logo_url'    => plugins_url( 'assets/actual-computer.jpg', __FILE__ ),
-			'endpoint_label'        => __( 'Base URL', 'wp-home-inference' ),
-			'endpoint_description'  => __( 'Actual Computer uses the fixed API base URL `https://api.actual.inc/v1`.', 'wp-home-inference' ),
+			'endpoint_label'        => __( 'Base URL', 'ai-connector-for-local-ai' ),
+			'endpoint_description'  => __( 'Actual Computer uses the fixed API base URL `https://api.actual.inc/v1`.', 'ai-connector-for-local-ai' ),
 			'endpoint_placeholder'  => 'https://api.actual.inc',
-			'api_key_description'   => __( 'The bearer token issued by Actual Computer.', 'wp-home-inference' ),
-			'model_description'     => __( 'Loaded live from the Actual Computer /v1/models endpoint. The selected model will be the one exposed by this connector.', 'wp-home-inference' ),
-			'model_invalid_message' => __( 'The selected model is not available from the Actual Computer endpoint.', 'wp-home-inference' ),
+			'api_key_description'   => __( 'The bearer token issued by Actual Computer.', 'ai-connector-for-local-ai' ),
+			'model_description'     => __( 'Loaded live from the Actual Computer /v1/models endpoint. The selected model will be the one exposed by this connector.', 'ai-connector-for-local-ai' ),
+			'model_invalid_message' => __( 'The selected model is not available from the Actual Computer endpoint.', 'ai-connector-for-local-ai' ),
 			'setup'                 => array(
-				'heading'      => __( 'Setup', 'wp-home-inference' ),
-				'introduction' => __( 'Connect this WordPress site to Actual Computer with your API key.', 'wp-home-inference' ),
+				'heading'      => __( 'Setup', 'ai-connector-for-local-ai' ),
+				'introduction' => __( 'Connect this WordPress site to Actual Computer with your API key.', 'ai-connector-for-local-ai' ),
 				'steps'        => array(
 					array(
-						'heading' => __( 'Step 1: Open the API console', 'wp-home-inference' ),
-						'body'    => __( 'Sign in to Actual Computer and create or copy your API key from the console.', 'wp-home-inference' ),
+						'heading' => __( 'Step 1: Open the API console', 'ai-connector-for-local-ai' ),
+						'body'    => __( 'Sign in to Actual Computer and create or copy your API key from the console.', 'ai-connector-for-local-ai' ),
 						'html'    => '<a href="https://actual.inc/console/api" target="_blank" rel="noreferrer noopener">https://actual.inc/console/api</a>',
 					),
 					array(
-						'heading' => __( 'Step 2: Paste your API key below', 'wp-home-inference' ),
-						'body'    => __( 'The connector uses the fixed Actual Computer endpoint `https://api.actual.inc/v1` automatically.', 'wp-home-inference' ),
+						'heading' => __( 'Step 2: Paste your API key below', 'ai-connector-for-local-ai' ),
+						'body'    => __( 'The connector uses the fixed Actual Computer endpoint `https://api.actual.inc/v1` automatically.', 'ai-connector-for-local-ai' ),
 					),
 					array(
-						'heading' => __( 'Step 3: Save and choose a model', 'wp-home-inference' ),
-						'body'    => __( 'After saving your API key, choose the Actual Computer model you want WordPress to expose.', 'wp-home-inference' ),
+						'heading' => __( 'Step 3: Save and choose a model', 'ai-connector-for-local-ai' ),
+						'body'    => __( 'After saving your API key, choose the Actual Computer model you want WordPress to expose.', 'ai-connector-for-local-ai' ),
 					),
 				),
 				),
@@ -235,14 +235,14 @@ add_action( 'init', __NAMESPACE__ . '\\register_provider', 5 );
  * @param string               $url  Request URL.
  * @return array<string, mixed>
  */
-function allow_home_inference_safe_remote_requests( array $args, string $url ): array {
+function allow_local_ai_safe_remote_requests( array $args, string $url ): array {
 	if ( should_allow_managed_provider_request( $url ) ) {
 		$args['reject_unsafe_urls'] = false;
 	}
 
 	return $args;
 }
-add_filter( 'http_request_args', __NAMESPACE__ . '\\allow_home_inference_safe_remote_requests', 10, 2 );
+add_filter( 'http_request_args', __NAMESPACE__ . '\\allow_local_ai_safe_remote_requests', 10, 2 );
 
 /**
  * Whether a URL targets any configured managed provider endpoint.
@@ -263,15 +263,15 @@ function should_allow_managed_provider_request( string $url ): bool {
 }
 
 /**
- * Whether a URL targets the configured Home Inference endpoint.
+ * Whether a URL targets the configured Local AI endpoint.
  *
  * @since 0.1.0
  *
  * @param string $url Request URL.
  * @return bool
  */
-function should_allow_home_inference_request( string $url ): bool {
-	return should_allow_provider_request( $url, 'home-inference' );
+function should_allow_local_ai_request( string $url ): bool {
+	return should_allow_provider_request( $url, 'local-ai' );
 }
 
 /**
@@ -428,16 +428,16 @@ add_filter( 'script_module_data_managed-connectors', __NAMESPACE__ . '\\connecto
  * @since 0.1.0
  */
 function register_settings(): void {
-	$home_inference = get_provider_definition( 'home-inference' );
-	$actual         = get_provider_definition( 'actual-computer' );
+	$local_ai = get_provider_definition( 'local-ai' );
+	$actual   = get_provider_definition( 'actual-computer' );
 
 	register_setting(
-		$home_inference['settings_group'],
-		$home_inference['endpoint_option'],
+		$local_ai['settings_group'],
+		$local_ai['endpoint_option'],
 		array(
 			'type'              => 'string',
-			'label'             => __( 'Home Inference Endpoint URL', 'wp-home-inference' ),
-			'description'       => __( 'The URL of your local inference proxy (for example `http://your-home-ip:13531`).', 'wp-home-inference' ),
+			'label'             => __( 'Local AI Endpoint URL', 'ai-connector-for-local-ai' ),
+			'description'       => __( 'The URL of your local inference proxy (for example `http://your-home-ip:13531`).', 'ai-connector-for-local-ai' ),
 			'default'           => '',
 			'show_in_rest'      => true,
 			'sanitize_callback' => 'esc_url_raw',
@@ -445,12 +445,12 @@ function register_settings(): void {
 	);
 
 	register_setting(
-		$home_inference['settings_group'],
-		$home_inference['api_key_option'],
+		$local_ai['settings_group'],
+		$local_ai['api_key_option'],
 		array(
 			'type'              => 'string',
-			'label'             => __( 'API Key', 'wp-home-inference' ),
-			'description'       => __( 'The shared secret shown when you start the local proxy.', 'wp-home-inference' ),
+			'label'             => __( 'API Key', 'ai-connector-for-local-ai' ),
+			'description'       => __( 'The shared secret shown when you start the local proxy.', 'ai-connector-for-local-ai' ),
 			'default'           => '',
 			'show_in_rest'      => true,
 			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_api_key',
@@ -458,15 +458,15 @@ function register_settings(): void {
 	);
 
 	register_setting(
-		$home_inference['settings_group'],
-		$home_inference['model_option'],
+		$local_ai['settings_group'],
+		$local_ai['model_option'],
 		array(
 			'type'              => 'string',
-			'label'             => __( 'Model', 'wp-home-inference' ),
-			'description'       => __( 'The model to use from the Home Inference proxy.', 'wp-home-inference' ),
+			'label'             => __( 'Model', 'ai-connector-for-local-ai' ),
+			'description'       => __( 'The model to use from the Local AI proxy.', 'ai-connector-for-local-ai' ),
 			'default'           => '',
 			'show_in_rest'      => true,
-			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_model_id',
+			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_local_ai_model_id',
 		)
 	);
 
@@ -475,8 +475,8 @@ function register_settings(): void {
 		$actual['api_key_option'],
 		array(
 			'type'              => 'string',
-			'label'             => __( 'API Key', 'wp-home-inference' ),
-			'description'       => __( 'The bearer token issued by Actual Computer.', 'wp-home-inference' ),
+			'label'             => __( 'API Key', 'ai-connector-for-local-ai' ),
+			'description'       => __( 'The bearer token issued by Actual Computer.', 'ai-connector-for-local-ai' ),
 			'default'           => '',
 			'show_in_rest'      => true,
 			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_api_key',
@@ -488,8 +488,8 @@ function register_settings(): void {
 		$actual['model_option'],
 		array(
 			'type'              => 'string',
-			'label'             => __( 'Model', 'wp-home-inference' ),
-			'description'       => __( 'The model to use from Actual Computer.', 'wp-home-inference' ),
+			'label'             => __( 'Model', 'ai-connector-for-local-ai' ),
+			'description'       => __( 'The model to use from Actual Computer.', 'ai-connector-for-local-ai' ),
 			'default'           => '',
 			'show_in_rest'      => true,
 			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_actual_computer_model_id',
@@ -515,15 +515,15 @@ function sanitize_api_key( $value ): string {
 }
 
 /**
- * Sanitizes the selected Home Inference model ID.
+ * Sanitizes the selected Local AI model ID.
  *
  * @since 0.1.0
  *
  * @param mixed $value Raw submitted model ID.
  * @return string
  */
-function sanitize_model_id( $value ): string {
-	return sanitize_provider_model_id( $value, 'home-inference' );
+function sanitize_local_ai_model_id( $value ): string {
+	return sanitize_provider_model_id( $value, 'local-ai' );
 }
 
 /**
@@ -583,15 +583,15 @@ function sanitize_provider_model_id( $value, string $slug ): string {
 }
 
 /**
- * Gets the Home Inference connection details from the current request or saved
+ * Gets the Local AI connection details from the current request or saved
  * options.
  *
  * @since 0.1.0
  *
  * @return array{endpoint_url: string, api_key: string}
  */
-function get_submitted_or_saved_connection_details(): array {
-	return get_submitted_or_saved_connection_details_for_provider( 'home-inference' );
+function get_submitted_or_saved_local_ai_connection_details(): array {
+	return get_submitted_or_saved_connection_details_for_provider( 'local-ai' );
 }
 
 /**
@@ -672,8 +672,8 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 
 	if ( '' === $endpoint_url || '' === $api_key ) {
 		return new \WP_Error(
-			'home_inference_missing_connection',
-			__( 'Save the endpoint URL and API key before loading models.', 'wp-home-inference' )
+			'local_ai_missing_connection',
+			__( 'Save the endpoint URL and API key before loading models.', 'ai-connector-for-local-ai' )
 		);
 	}
 
@@ -695,10 +695,10 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 	$status_code = wp_remote_retrieve_response_code( $response );
 	if ( $status_code < 200 || $status_code >= 300 ) {
 		return new \WP_Error(
-			'home_inference_models_http_error',
+			'local_ai_models_http_error',
 			sprintf(
 				/* translators: %d: HTTP status code from the provider. */
-				__( 'The provider returned HTTP %d when loading models.', 'wp-home-inference' ),
+				__( 'The provider returned HTTP %d when loading models.', 'ai-connector-for-local-ai' ),
 				$status_code
 			)
 		);
@@ -709,8 +709,8 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 
 	if ( ! is_array( $data ) || ! isset( $data['data'] ) || ! is_array( $data['data'] ) ) {
 		return new \WP_Error(
-			'home_inference_models_invalid_response',
-			__( 'The provider returned an invalid models response.', 'wp-home-inference' )
+			'local_ai_models_invalid_response',
+			__( 'The provider returned an invalid models response.', 'ai-connector-for-local-ai' )
 		);
 	}
 
@@ -728,8 +728,8 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 
 	if ( empty( $models ) ) {
 		return new \WP_Error(
-			'home_inference_models_empty',
-			__( 'No models were returned by the provider.', 'wp-home-inference' )
+			'local_ai_models_empty',
+			__( 'No models were returned by the provider.', 'ai-connector-for-local-ai' )
 		);
 	}
 
@@ -761,12 +761,12 @@ function add_admin_menu(): void {
 add_action( 'admin_menu', __NAMESPACE__ . '\\add_admin_menu' );
 
 /**
- * Backward-compatible wrapper for the original Home Inference settings page.
+ * Renders the Local AI settings page.
  *
  * @since 0.1.0
  */
-function render_admin_page(): void {
-	render_provider_admin_page( 'home-inference' );
+function render_local_ai_admin_page(): void {
+	render_provider_admin_page( 'local-ai' );
 }
 
 /**
@@ -794,7 +794,7 @@ function render_provider_admin_page( string $slug ): void {
 
 	?>
 	<style>
-		.home-inference-cmd {
+		.local-ai-cmd {
 			position: relative;
 			background: #f0f0f0;
 			padding: 12px 60px 12px 12px;
@@ -802,7 +802,7 @@ function render_provider_admin_page( string $slug ): void {
 			margin: 0;
 			font-size: 13px;
 		}
-		.home-inference-copy {
+		.local-ai-copy {
 			position: absolute;
 			top: 6px;
 			right: 6px;
@@ -815,7 +815,7 @@ function render_provider_admin_page( string $slug ): void {
 			color: #2271b1;
 			line-height: 1.6;
 		}
-		.home-inference-copy:hover {
+		.local-ai-copy:hover {
 			border-color: #2271b1;
 			color: #135e96;
 		}
@@ -869,7 +869,7 @@ function render_provider_admin_page( string $slug ): void {
 				<?php endif; ?>
 				<tr>
 					<th scope="row">
-						<label for="<?php echo esc_attr( $provider['api_key_option'] ); ?>"><?php esc_html_e( 'API Key', 'wp-home-inference' ); ?></label>
+						<label for="<?php echo esc_attr( $provider['api_key_option'] ); ?>"><?php esc_html_e( 'API Key', 'ai-connector-for-local-ai' ); ?></label>
 					</th>
 					<td>
 						<input
@@ -885,7 +885,7 @@ function render_provider_admin_page( string $slug ): void {
 				</tr>
 				<tr>
 					<th scope="row">
-						<label for="<?php echo esc_attr( $provider['model_option'] ); ?>"><?php esc_html_e( 'Model', 'wp-home-inference' ); ?></label>
+						<label for="<?php echo esc_attr( $provider['model_option'] ); ?>"><?php esc_html_e( 'Model', 'ai-connector-for-local-ai' ); ?></label>
 					</th>
 					<td>
 						<select
@@ -894,7 +894,7 @@ function render_provider_admin_page( string $slug ): void {
 							class="regular-text"
 							<?php disabled( ! $is_configured || is_wp_error( $models ) ); ?>
 						>
-							<option value=""><?php esc_html_e( 'Automatic (first compatible model)', 'wp-home-inference' ); ?></option>
+							<option value=""><?php esc_html_e( 'Automatic (first compatible model)', 'ai-connector-for-local-ai' ); ?></option>
 							<?php if ( ! is_wp_error( $models ) ) : ?>
 								<?php foreach ( $models as $model ) : ?>
 									<option value="<?php echo esc_attr( $model['id'] ); ?>" <?php selected( $model_id, $model['id'] ); ?>>
@@ -904,7 +904,7 @@ function render_provider_admin_page( string $slug ): void {
 							<?php endif; ?>
 						</select>
 						<?php if ( ! $is_configured ) : ?>
-							<p class="description"><?php esc_html_e( 'Save the endpoint URL and API key first to load available models.', 'wp-home-inference' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Save the endpoint URL and API key first to load available models.', 'ai-connector-for-local-ai' ); ?></p>
 						<?php elseif ( is_wp_error( $models ) ) : ?>
 							<p class="description"><?php echo esc_html( $models->get_error_message() ); ?></p>
 						<?php else : ?>
@@ -930,12 +930,12 @@ function render_provider_admin_page( string $slug ): void {
 		<?php endif; ?>
 	</div>
 	<script>
-	document.querySelectorAll( '.home-inference-copy' ).forEach( function( btn ) {
+	document.querySelectorAll( '.local-ai-copy' ).forEach( function( btn ) {
 		btn.addEventListener( 'click', function() {
 			var text = this.parentNode.querySelector( 'code' ).textContent;
 			navigator.clipboard.writeText( text ).then( function() {
 				var orig = btn.textContent;
-				btn.textContent = <?php echo wp_json_encode( __( 'Copied!', 'wp-home-inference' ) ); ?>;
+				btn.textContent = <?php echo wp_json_encode( __( 'Copied!', 'ai-connector-for-local-ai' ) ); ?>;
 				setTimeout( function() { btn.textContent = orig; }, 2000 );
 			} );
 		} );
@@ -953,6 +953,6 @@ function render_provider_admin_page( string $slug ): void {
  */
 function render_copyable_command( string $command ): void {
 	?>
-	<pre class="home-inference-cmd"><code><?php echo esc_html( $command ); ?></code><button type="button" class="home-inference-copy"><?php esc_html_e( 'Copy', 'wp-home-inference' ); ?></button></pre>
+	<pre class="local-ai-cmd"><code><?php echo esc_html( $command ); ?></code><button type="button" class="local-ai-copy"><?php esc_html_e( 'Copy', 'ai-connector-for-local-ai' ); ?></button></pre>
 	<?php
 }
