@@ -1,10 +1,10 @@
 === AI Connector for Local AI ===
 Contributors: mattwiebe
-Tags: ai, connectors, inference, openai, models
+Tags: ai, connectors, inference, openai, models, local-ai
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,11 @@ The WordPress plugin ships the connector and settings UI. The local proxy and CL
 It uses `https://api.actual.inc/v1`.
 
 == Changelog ==
+
+= 0.2.1 =
+
+* Move development and release documentation into `docs/developing.md`.
+* Refresh plugin metadata and WordPress.org tags.
 
 = 0.2.0 =
 

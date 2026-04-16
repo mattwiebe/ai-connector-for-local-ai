@@ -2,11 +2,11 @@
 /**
  * Plugin Name: AI Connector for Local AI
  * Plugin URI: https://github.com/mattwiebe/ai-connector-for-local-ai
- * Description: AI providers for routing inference to your own machine or to an Actual Computer endpoint.
+ * Description: AI providers for routing AI requests to your own machine.
  * Requires at least: 7.0
  * Requires PHP: 7.4
- * Version: 0.2.0
- * Author: Matt
+ * Version: 0.2.1
+ * Author: Matt Wiebe
  * License: GPL-2.0-or-later
  * License URI: https://spdx.org/licenses/GPL-2.0-or-later.html
  * Text Domain: ai-connector-for-local-ai
