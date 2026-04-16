@@ -56,9 +56,7 @@ class HomeInferenceProvider extends AbstractApiProvider {
 			}
 		}
 
-		throw new RuntimeException(
-			'Unsupported model capabilities: ' . implode( ', ', $modelMetadata->getSupportedCapabilities() )
-		);
+		throw new RuntimeException( 'Unsupported model capabilities.' );
 	}
 
 	/**
