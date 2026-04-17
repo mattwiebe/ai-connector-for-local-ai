@@ -736,7 +736,7 @@ async function main() {
 		console.log( `    curl -H "Authorization: Bearer ${ API_KEY }" http://127.0.0.1:${ PORT }/v1/models` );
 		console.log( '' );
 		console.log( '  Recommended next steps:' );
-		console.log( '    Run `wphi install` to keep the proxy running in the background on macOS.' );
+		console.log( '    Run `laiproxy install` to keep the proxy running in the background on macOS.' );
 		console.log( `    Download the WordPress plugin ZIP at ${ PLUGIN_RELEASES_URL }` );
 		console.log( '    Request logs will appear below with endpoint path and caller IP/host.' );
 		console.log( '' );

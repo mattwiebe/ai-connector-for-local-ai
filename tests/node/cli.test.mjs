@@ -21,8 +21,8 @@ test( 'normalizeArgs maps commands to npm scripts', () => {
 } );
 
 test( 'helpText and version include the package version', () => {
-	assert.match( helpText(), new RegExp( `wphi v${ VERSION.replace( /\./g, '\\.' ) }` ) );
-	assert.match( helpText(), /wphi --version/ );
+	assert.match( helpText(), new RegExp( `laiproxy v${ VERSION.replace( /\./g, '\\.' ) }` ) );
+	assert.match( helpText(), /laiproxy --version/ );
 	assert.match( helpText(), /Alias for npm run up/ );
 	assert.match( helpText(), /rotate-key/ );
 } );

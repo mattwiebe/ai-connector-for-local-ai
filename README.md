@@ -6,7 +6,7 @@ It is built for WordPress 7.0+ and the new Connectors primitives. The WordPress 
 
 ## What It Does
 
-- Registers a `local-ai` AI provider with the WordPress AI Client.
+- Registers a `mw-local-ai` AI provider with the WordPress AI Client.
 - Adds a Settings screen for entering the proxy URL, API key, and selected model.
 - Loads model choices from the real proxied `/v1/models` endpoint.
 - Restricts the provider to the selected model so WordPress auto-discovery consistently uses it.
@@ -55,19 +55,19 @@ npm install -g @mattwiebe/ai-connector-for-local-ai
 Then initialize and run the proxy with:
 
 ```bash
-wphi init
-wphi up
+laiproxy init
+laiproxy up
 ```
 
 macOS background service management:
 
 ```bash
-wphi install
-wphi start
-wphi stop
-wphi status
-wphi rotate-key
-wphi uninstall
+laiproxy install
+laiproxy start
+laiproxy stop
+laiproxy status
+laiproxy rotate-key
+laiproxy uninstall
 ```
 
 You can also run it without a global install:
@@ -101,27 +101,27 @@ That guided setup will:
 After that, normal startup is non-interactive:
 
 ```bash
-wphi up
+laiproxy up
 ```
 
 To reconfigure later:
 
 ```bash
-wphi init
+laiproxy init
 ```
 
-On macOS, `wphi install` or `npm run service:install` writes a LaunchAgent at `~/Library/LaunchAgents/com.mattwiebe.ai-connector-for-local-ai.plist` so the proxy can keep running in the background across logins.
+On macOS, `laiproxy install` or `npm run service:install` writes a LaunchAgent at `~/Library/LaunchAgents/com.mattwiebe.ai-connector-for-local-ai.plist` so the proxy can keep running in the background across logins.
 
 To rotate the shared API key in the persisted `.env` file and print the new key:
 
 ```bash
-wph rotate-key
+laiproxy rotate-key
 ```
 
 This also works as:
 
 ```bash
-wphi rotate-key
+laiproxy rotate-key
 npm run rotate-key
 ```
 
@@ -130,11 +130,11 @@ On macOS, if the LaunchAgent is currently running, `rotate-key` will restart it 
 Useful overrides:
 
 ```bash
-wphi up --port 13531
-wphi up --funnel-port 10000
-wphi up --backend http://localhost:11434
-wphi up --api-key your-secret
-wphi up --no-tunnel
+laiproxy up --port 13531
+laiproxy up --funnel-port 10000
+laiproxy up --backend http://localhost:11434
+laiproxy up --api-key your-secret
+laiproxy up --no-tunnel
 ```
 
 ## Development

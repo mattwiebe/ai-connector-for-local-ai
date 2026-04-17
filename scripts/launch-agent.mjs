@@ -56,7 +56,7 @@ function ensureConfigReady() {
 	const config = getEffectiveConfig();
 	if ( ! hasUsableConfig( config ) ) {
 		console.error( `Configuration is not ready at ${ ENV_PATH }.` );
-		console.error( 'Run `npm run init` or `wphi init` first.' );
+		console.error( 'Run `npm run init` or `laiproxy init` first.' );
 		process.exit( 1 );
 	}
 
@@ -139,7 +139,7 @@ function stopService( { silent = false } = {} ) {
 function startService() {
 	if ( ! existsSync( PLIST_PATH ) ) {
 		console.error( `LaunchAgent is not installed at ${ PLIST_PATH }.` );
-		console.error( 'Run `npm run service:install` or `wphi install` first.' );
+		console.error( 'Run `npm run service:install` or `laiproxy install` first.' );
 		process.exit( 1 );
 	}
 
@@ -179,7 +179,7 @@ function uninstallService() {
 }
 
 function statusService() {
-	console.log( `wphi v${ VERSION }` );
+	console.log( `laiproxy v${ VERSION }` );
 	console.log( `Label: ${ LABEL }` );
 	console.log( `Plist: ${ PLIST_PATH }` );
 	console.log( `Config: ${ ENV_PATH }` );

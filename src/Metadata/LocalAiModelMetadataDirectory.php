@@ -37,8 +37,8 @@ class LocalAiModelMetadataDirectory extends AbstractOpenAiCompatibleModelMetadat
 	 * @since 0.1.0
 	 */
 	protected function getBaseCacheKey(): string {
-		$endpoint_url = untrailingslashit( (string) get_option( 'local_ai_endpoint_url', '' ) );
-		$selected_model_id = (string) get_option( 'local_ai_model_id', '' );
+		$endpoint_url = untrailingslashit( (string) get_option( 'mw_local_ai_endpoint_url', '' ) );
+		$selected_model_id = (string) get_option( 'mw_local_ai_model_id', '' );
 
 		return parent::getBaseCacheKey() . '_' . md5( $endpoint_url . '|' . $selected_model_id );
 	}
@@ -98,7 +98,7 @@ class LocalAiModelMetadataDirectory extends AbstractOpenAiCompatibleModelMetadat
 
 		$models = array();
 		$matched_models = array();
-		$selected_model_id = trim( (string) get_option( 'local_ai_model_id', '' ) );
+		$selected_model_id = trim( (string) get_option( 'mw_local_ai_model_id', '' ) );
 
 		foreach ( (array) $responseData['data'] as $model_data ) {
 			if ( ! is_array( $model_data ) || ! isset( $model_data['id'] ) ) {

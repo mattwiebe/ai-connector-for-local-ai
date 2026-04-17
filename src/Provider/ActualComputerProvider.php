@@ -58,7 +58,7 @@ class ActualComputerProvider extends AbstractApiProvider {
 	 */
 	protected static function createProviderMetadata(): ProviderMetadata {
 		return new ProviderMetadata(
-			'actual-computer',
+			'mw-actual-computer',
 			'Actual Computer',
 			ProviderTypeEnum::server(),
 			null,

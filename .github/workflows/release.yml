@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   build-release:
@@ -38,10 +39,11 @@ jobs:
 
       - uses: ramsey/composer-install@v3
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install WordPress test suite
         run: composer test:install-wp
@@ -62,8 +64,12 @@ jobs:
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wp-home-inference
+          name: ai-connector-for-local-ai
           path: dist/*
+
+      - name: Publish npm package
+        if: startsWith(github.ref, 'refs/tags/')
+        run: npm publish
 
       - name: Publish GitHub release asset
         if: startsWith(github.ref, 'refs/tags/')
@@ -71,20 +77,3 @@ jobs:
         with:
           generate_release_notes: true
           files: dist/*
-
-      - name: Notify Packagist
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
-          PACKAGIST_API_TOKEN: ${{ secrets.PACKAGIST_API_TOKEN }}
-        run: |
-          if [ -z "${PACKAGIST_USERNAME}" ] || [ -z "${PACKAGIST_API_TOKEN}" ]; then
-            echo "Packagist secrets not configured; skipping notification."
-            exit 0
-          fi
-
-          curl --fail --show-error --silent \
-            -X POST \
-            -H 'content-type: application/json' \
-            "https://packagist.org/api/update-package?username=${PACKAGIST_USERNAME}&apiToken=${PACKAGIST_API_TOKEN}" \
-            -d '{"repository":{"url":"https://github.com/mattwiebe/wp-home-inference"}}'

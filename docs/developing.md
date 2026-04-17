@@ -101,6 +101,7 @@ This repository ships with GitHub Actions workflows for:
 - Release packaging on tags matching `v*`
   - runs the full test suite,
   - builds the WordPress plugin ZIP and npm tarball,
+  - publishes the npm package with trusted publishing,
   - uploads both artifacts to the GitHub release.
 
 To cut a release:
@@ -112,12 +113,9 @@ To cut a release:
    - `dist/mattwiebe-ai-connector-for-local-ai-<version>.tgz`
 4. The workflow will attach both files to the GitHub release automatically.
 
-For Packagist auto-refresh after tag pushes, add these repository secrets in GitHub:
+For Packagist, connect the GitHub repository in Packagist so updates are detected through the Packagist GitHub integration. Reference: [Packagist update hooks](https://packagist.org/about#how-to-update-packages).
 
-- `PACKAGIST_USERNAME`
-- `PACKAGIST_API_TOKEN`
-
-The release workflow will call Packagist's documented update endpoint after publishing the GitHub release. Reference: [Packagist update hooks](https://packagist.org/about#how-to-update-packages).
+For npm publishing, configure npm trusted publishing for `@mattwiebe/ai-connector-for-local-ai` on npmjs.com and authorize the GitHub Actions workflow file `release.yml`. The workflow requests `id-token: write` and runs `npm publish` on tag builds, so no long-lived npm token is needed once trusted publishing is set up.
 
 ## Composer / Packagist
 
@@ -184,18 +182,18 @@ Preferred usage:
 
 ```bash
 npm install -g @mattwiebe/ai-connector-for-local-ai
-wphi init
-wphi up
+laiproxy init
+laiproxy up
 ```
 
 The CLI also exposes macOS service management:
 
 ```bash
-wphi install
-wphi start
-wphi stop
-wphi status
-wphi uninstall
+laiproxy install
+laiproxy start
+laiproxy stop
+laiproxy status
+laiproxy uninstall
 ```
 
 It also works without installation:
@@ -205,9 +203,7 @@ npx @mattwiebe/ai-connector-for-local-ai up
 npx @mattwiebe/ai-connector-for-local-ai init
 ```
 
-The package also exposes `ai-connector-for-local-ai` as a longer alias, but `wphi` is the intended global command.
-
-For convenience, the package also exposes the shorter `wph` alias.
+The package also exposes `ai-connector-for-local-ai` as a longer alias, but `laiproxy` is the intended global command.
 
 The npm CLI stores its persistent config in:
 
@@ -226,8 +222,8 @@ Based on npm’s current docs for scoped public packages, the publish flow is:
    `npm view @mattwiebe/ai-connector-for-local-ai`
 3. Inspect exactly what would be published:
    `npm pack --dry-run`
-4. Publish the next version:
-   `npm publish`
+4. Configure npm trusted publishing for the package on npmjs.com using this repository and the `release.yml` workflow.
+5. Push a release tag so GitHub Actions runs `npm publish`.
 
 This repo already sets `publishConfig.access` to `public`, which is the required setting for a public scoped package according to npm’s docs.
 

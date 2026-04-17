@@ -32,7 +32,7 @@ class LocalAiProvider extends AbstractApiProvider {
 	 * @since 0.1.0
 	 */
 	protected static function baseUrl(): string {
-		$url = get_option( 'local_ai_endpoint_url', '' );
+		$url = get_option( 'mw_local_ai_endpoint_url', '' );
 
 		if ( empty( $url ) ) {
 			return '';
@@ -66,7 +66,7 @@ class LocalAiProvider extends AbstractApiProvider {
 	 */
 	protected static function createProviderMetadata(): ProviderMetadata {
 		return new ProviderMetadata(
-			'local-ai',
+			'mw-local-ai',
 			'Local AI',
 			ProviderTypeEnum::server(),
 			null,

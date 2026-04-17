@@ -69,16 +69,16 @@ function provider_definitions(): array {
 	}
 
 	$definitions = array(
-		'local-ai' => array(
-			'slug'                  => 'local-ai',
+		'mw-local-ai' => array(
+			'slug'                  => 'mw-local-ai',
 			'provider_class'        => LocalAiProvider::class,
 			'name'                  => __( 'Local AI', 'ai-connector-for-local-ai' ),
 			'description'           => __( 'Run AI inference on your own hardware using local models.', 'ai-connector-for-local-ai' ),
-			'endpoint_option'       => 'local_ai_endpoint_url',
-			'api_key_option'        => 'connectors_ai_local_ai_api_key',
-			'model_option'          => 'local_ai_model_id',
-			'settings_group'        => 'local_ai',
-			'admin_page'            => 'local-ai',
+			'endpoint_option'       => 'mw_local_ai_endpoint_url',
+			'api_key_option'        => 'mw_local_ai_api_key',
+			'model_option'          => 'mw_local_ai_model_id',
+			'settings_group'        => 'mw_local_ai',
+			'admin_page'            => 'mw-local-ai',
 			'show_endpoint_field'   => true,
 			'connector_auth_method' => 'none',
 			'use_custom_connector_ui' => true,
@@ -109,11 +109,11 @@ function provider_definitions(): array {
 					array(
 						'heading'  => __( 'Step 3: Install and start the Local AI proxy', 'ai-connector-for-local-ai' ),
 						'body'     => __( 'On your home computer, install the published CLI and run the setup command:', 'ai-connector-for-local-ai' ),
-						'commands' => array( 'npm install -g @mattwiebe/ai-connector-for-local-ai && wphi init', 'wphi up', 'wphi install' ),
+						'commands' => array( 'npm install -g @mattwiebe/ai-connector-for-local-ai && laiproxy init', 'laiproxy up', 'laiproxy install' ),
 						'notes'    => array(
 							__( 'This configures the proxy, auto-detects your local backend, optionally starts Tailscale Funnel, and saves the connection details for future runs.', 'ai-connector-for-local-ai' ),
 							__( 'If you are working from this repo instead of a global npm install, the equivalent commands are `npm run init`, `npm run up`, and `npm run service:install`.', 'ai-connector-for-local-ai' ),
-							__( 'On macOS, the LaunchAgent can be managed later with `wphi start`, `wphi stop`, and `wphi uninstall`.', 'ai-connector-for-local-ai' ),
+							__( 'On macOS, the LaunchAgent can be managed later with `laiproxy start`, `laiproxy stop`, and `laiproxy uninstall`.', 'ai-connector-for-local-ai' ),
 						),
 					),
 					array(
@@ -125,22 +125,22 @@ function provider_definitions(): array {
 			'info_card'             => array(
 				'heading'     => __( 'Server Info', 'ai-connector-for-local-ai' ),
 				'description' => __( 'Your local proxy should be started with:', 'ai-connector-for-local-ai' ),
-				'commands'    => array( 'wphi up' ),
+				'commands'    => array( 'laiproxy up' ),
 				'notes'       => array(
 					__( 'Local development from this repo can also use `npm run up`.', 'ai-connector-for-local-ai' ),
 				),
 			),
 		),
-		'actual-computer' => array(
-			'slug'                  => 'actual-computer',
+		'mw-actual-computer' => array(
+			'slug'                  => 'mw-actual-computer',
 			'provider_class'        => ActualComputerProvider::class,
 			'name'                  => __( 'Actual Computer', 'ai-connector-for-local-ai' ),
 			'description'           => __( 'Connect WordPress AI to an Actual Computer endpoint.', 'ai-connector-for-local-ai' ),
-			'endpoint_option'       => 'actual_computer_endpoint_url',
-			'api_key_option'        => 'connectors_ai_actual_computer_api_key',
-			'model_option'          => 'actual_computer_model_id',
-			'settings_group'        => 'actual_computer',
-			'admin_page'            => 'actual-computer',
+			'endpoint_option'       => 'mw_actual_computer_endpoint_url',
+			'api_key_option'        => 'mw_actual_computer_api_key',
+			'model_option'          => 'mw_actual_computer_model_id',
+			'settings_group'        => 'mw_actual_computer',
+			'admin_page'            => 'mw-actual-computer',
 			'fixed_endpoint_url'    => 'https://api.actual.inc',
 			'show_endpoint_field'   => false,
 			'connector_auth_method' => 'api_key',
@@ -271,7 +271,7 @@ function should_allow_managed_provider_request( string $url ): bool {
  * @return bool
  */
 function should_allow_local_ai_request( string $url ): bool {
-	return should_allow_provider_request( $url, 'local-ai' );
+	return should_allow_provider_request( $url, 'mw-local-ai' );
 }
 
 /**
@@ -283,7 +283,7 @@ function should_allow_local_ai_request( string $url ): bool {
  * @return bool
  */
 function should_allow_actual_computer_request( string $url ): bool {
-	return should_allow_provider_request( $url, 'actual-computer' );
+	return should_allow_provider_request( $url, 'mw-actual-computer' );
 }
 
 /**
@@ -428,8 +428,8 @@ add_filter( 'script_module_data_managed-connectors', __NAMESPACE__ . '\\connecto
  * @since 0.1.0
  */
 function register_settings(): void {
-	$local_ai = get_provider_definition( 'local-ai' );
-	$actual   = get_provider_definition( 'actual-computer' );
+	$local_ai = get_provider_definition( 'mw-local-ai' );
+	$actual   = get_provider_definition( 'mw-actual-computer' );
 
 	register_setting(
 		$local_ai['settings_group'],
@@ -523,7 +523,7 @@ function sanitize_api_key( $value ): string {
  * @return string
  */
 function sanitize_local_ai_model_id( $value ): string {
-	return sanitize_provider_model_id( $value, 'local-ai' );
+	return sanitize_provider_model_id( $value, 'mw-local-ai' );
 }
 
 /**
@@ -535,7 +535,7 @@ function sanitize_local_ai_model_id( $value ): string {
  * @return string
  */
 function sanitize_actual_computer_model_id( $value ): string {
-	return sanitize_provider_model_id( $value, 'actual-computer' );
+	return sanitize_provider_model_id( $value, 'mw-actual-computer' );
 }
 
 /**
@@ -591,7 +591,7 @@ function sanitize_provider_model_id( $value, string $slug ): string {
  * @return array{endpoint_url: string, api_key: string}
  */
 function get_submitted_or_saved_local_ai_connection_details(): array {
-	return get_submitted_or_saved_connection_details_for_provider( 'local-ai' );
+	return get_submitted_or_saved_connection_details_for_provider( 'mw-local-ai' );
 }
 
 /**
@@ -603,7 +603,7 @@ function get_submitted_or_saved_local_ai_connection_details(): array {
  * @return array{endpoint_url: string, api_key: string}
  */
 function get_submitted_or_saved_actual_computer_connection_details(): array {
-	return get_submitted_or_saved_connection_details_for_provider( 'actual-computer' );
+	return get_submitted_or_saved_connection_details_for_provider( 'mw-actual-computer' );
 }
 
 /**
@@ -672,7 +672,7 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 
 	if ( '' === $endpoint_url || '' === $api_key ) {
 		return new \WP_Error(
-			'local_ai_missing_connection',
+			'mw_local_ai_missing_connection',
 			__( 'Save the endpoint URL and API key before loading models.', 'ai-connector-for-local-ai' )
 		);
 	}
@@ -695,7 +695,7 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 	$status_code = wp_remote_retrieve_response_code( $response );
 	if ( $status_code < 200 || $status_code >= 300 ) {
 		return new \WP_Error(
-			'local_ai_models_http_error',
+			'mw_local_ai_models_http_error',
 			sprintf(
 				/* translators: %d: HTTP status code from the provider. */
 				__( 'The provider returned HTTP %d when loading models.', 'ai-connector-for-local-ai' ),
@@ -709,7 +709,7 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 
 	if ( ! is_array( $data ) || ! isset( $data['data'] ) || ! is_array( $data['data'] ) ) {
 		return new \WP_Error(
-			'local_ai_models_invalid_response',
+			'mw_local_ai_models_invalid_response',
 			__( 'The provider returned an invalid models response.', 'ai-connector-for-local-ai' )
 		);
 	}
@@ -728,7 +728,7 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 
 	if ( empty( $models ) ) {
 		return new \WP_Error(
-			'local_ai_models_empty',
+			'mw_local_ai_models_empty',
 			__( 'No models were returned by the provider.', 'ai-connector-for-local-ai' )
 		);
 	}
@@ -766,7 +766,7 @@ add_action( 'admin_menu', __NAMESPACE__ . '\\add_admin_menu' );
  * @since 0.1.0
  */
 function render_local_ai_admin_page(): void {
-	render_provider_admin_page( 'local-ai' );
+	render_provider_admin_page( 'mw-local-ai' );
 }
 
 /**

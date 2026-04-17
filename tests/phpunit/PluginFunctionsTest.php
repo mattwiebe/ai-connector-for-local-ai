@@ -22,11 +22,11 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		update_option( 'local_ai_endpoint_url', 'https://proxy.example.test' );
-		update_option( 'connectors_ai_local_ai_api_key', 'secret-token' );
-		delete_option( 'local_ai_model_id' );
-		update_option( 'connectors_ai_actual_computer_api_key', 'actual-secret-token' );
-		delete_option( 'actual_computer_model_id' );
+		update_option( 'mw_local_ai_endpoint_url', 'https://proxy.example.test' );
+		update_option( 'mw_local_ai_api_key', 'secret-token' );
+		delete_option( 'mw_local_ai_model_id' );
+		update_option( 'mw_actual_computer_api_key', 'actual-secret-token' );
+		delete_option( 'mw_actual_computer_model_id' );
 		$_POST = array();
 	}
 
@@ -90,7 +90,7 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 
 		$this->assertInstanceOf( WP_Error::class, $models );
-		$this->assertSame( 'local_ai_models_invalid_response', $models->get_error_code() );
+		$this->assertSame( 'mw_local_ai_models_invalid_response', $models->get_error_code() );
 	}
 
 	public function test_sanitize_model_id_accepts_live_model(): void {
@@ -195,7 +195,7 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 			$this->markTestSkipped( 'WordPress AI Client model metadata directory classes are not available in this test environment.' );
 		}
 
-		update_option( 'local_ai_model_id', 'missing-model' );
+		update_option( 'mw_local_ai_model_id', 'missing-model' );
 
 		$directory = new LocalAiModelMetadataDirectory();
 		$reflection = new \ReflectionMethod( $directory, 'parseResponseToModelMetadataList' );
@@ -256,7 +256,7 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 			$this->markTestSkipped( 'WordPress AI Client model metadata directory classes are not available in this test environment.' );
 		}
 
-		update_option( 'actual_computer_model_id', 'missing-model' );
+		update_option( 'mw_actual_computer_model_id', 'missing-model' );
 
 		$directory  = new ActualComputerModelMetadataDirectory();
 		$reflection = new \ReflectionMethod( $directory, 'parseResponseToModelMetadataList' );

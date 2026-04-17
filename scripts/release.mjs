@@ -294,14 +294,6 @@ function getReleaseAssets( tag ) {
 		.map( ( line ) => line.replace( 'asset:\t', '' ).trim() );
 }
 
-function getGitHubSecrets() {
-	const output = run( 'gh', [ 'secret', 'list', '--repo', REPO ] );
-	return output
-		.split( '\n' )
-		.map( ( line ) => line.trim().split( /\s+/ )[0] )
-		.filter( Boolean );
-}
-
 function publishNpmRelease( otp ) {
 	const args = [ 'publish' ];
 
@@ -314,8 +306,8 @@ function publishNpmRelease( otp ) {
 
 function printManualNpmStep( version ) {
 	console.log( '' );
-	console.log( 'npm publish remains manual by default for this repo.' );
-	console.log( `Run next: npm publish --otp=<code>  # publishes @mattwiebe/ai-connector-for-local-ai@${ version }` );
+	console.log( 'npm publish can be handled by the GitHub release workflow via trusted publishing.' );
+	console.log( `If trusted publishing is not configured yet, run manually: npm publish --otp=<code>  # publishes @mattwiebe/ai-connector-for-local-ai@${ version }` );
 }
 
 async function main() {
@@ -341,15 +333,11 @@ async function main() {
 	createAndPushTag( tag );
 
 	let releaseAssets = [];
-	let packagistConfigured = false;
-
 	if ( ! options.noWait ) {
 		console.log( 'Waiting for GitHub Release workflow...' );
 		const releaseRun = await waitForReleaseRun( tag );
 		watchRun( releaseRun.databaseId );
 		releaseAssets = getReleaseAssets( tag );
-		const secrets = getGitHubSecrets();
-		packagistConfigured = secrets.includes( 'PACKAGIST_USERNAME' ) && secrets.includes( 'PACKAGIST_API_TOKEN' );
 	}
 
 	if ( options.publishNpm ) {
@@ -368,18 +356,12 @@ async function main() {
 		console.log( `  Release assets: ${ releaseAssets.join( ', ' ) }` );
 	}
 
-	if ( ! options.noWait ) {
-		console.log(
-			packagistConfigured
-				? '  Packagist: GitHub workflow should have notified Packagist.'
-				: '  Packagist: GitHub secrets are not configured; notification was skipped.'
-		);
-	}
+	console.log( '  Packagist: updates should flow through the connected Packagist GitHub integration.' );
 
 	if ( options.publishNpm ) {
 		console.log( `  npm: published @mattwiebe/ai-connector-for-local-ai@${ version }` );
 	} else {
-		console.log( `  npm: pending manual publish for @mattwiebe/ai-connector-for-local-ai@${ version }` );
+		console.log( `  npm: published by GitHub Actions if trusted publishing is configured for @mattwiebe/ai-connector-for-local-ai` );
 	}
 }
 

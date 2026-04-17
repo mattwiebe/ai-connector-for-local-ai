@@ -1,6 +1,6 @@
 === AI Connector for Local AI ===
 Contributors: mattwiebe
-Tags: ai, connectors, inference, openai, models, local-ai
+Tags: ai, connectors, inference, openai, models, mw-local-ai
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4

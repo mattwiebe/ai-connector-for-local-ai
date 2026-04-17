@@ -54,19 +54,19 @@ function normalizeArgs( rawArgs ) {
 }
 
 function helpText() {
-	return `wphi v${ VERSION }
+	return `laiproxy v${ VERSION }
 
 Usage:
-  wphi up [options]
-  wphi init [options]
-  wphi install
-  wphi start
-  wphi stop
-  wphi status
-  wphi rotate-key
-  wphi uninstall
-  wphi --help
-  wphi --version
+  laiproxy up [options]
+  laiproxy init [options]
+  laiproxy install
+  laiproxy start
+  laiproxy stop
+  laiproxy status
+  laiproxy rotate-key
+  laiproxy uninstall
+  laiproxy --help
+  laiproxy --version
 
 Commands:
   up         Alias for npm run up
@@ -97,7 +97,7 @@ function main() {
 	}
 
 	if ( normalized.action === 'version' ) {
-		console.log( `wphi v${ VERSION }` );
+		console.log( `laiproxy v${ VERSION }` );
 		process.exit( 0 );
 	}
 

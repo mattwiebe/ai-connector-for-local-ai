@@ -4,8 +4,7 @@
   "description": "CLI and WordPress plugin for routing AI inference to models running on your own machine.",
   "type": "module",
   "bin": {
-    "wph": "bin/ai-connector-for-local-ai.mjs",
-    "wphi": "bin/ai-connector-for-local-ai.mjs",
+    "laiproxy": "bin/ai-connector-for-local-ai.mjs",
     "ai-connector-for-local-ai": "bin/ai-connector-for-local-ai.mjs"
   },
   "files": [
