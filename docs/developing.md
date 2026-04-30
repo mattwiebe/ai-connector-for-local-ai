@@ -152,7 +152,7 @@ If you want to consume it directly from GitHub before Packagist metadata refresh
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/mattwiebe/mw-local-ai-connector"
+      "url": "https://github.com/mattwiebe/ai-connector-for-local-ai"
     }
   ]
 }

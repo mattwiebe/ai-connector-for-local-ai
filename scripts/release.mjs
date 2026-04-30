@@ -14,7 +14,7 @@ const PACKAGE_LOCK_PATH = join( ROOT_DIR, 'package-lock.json' );
 const PLUGIN_PATH = join( ROOT_DIR, 'mw-local-ai-connector.php' );
 const README_TXT_PATH = join( ROOT_DIR, 'readme.txt' );
 const RELEASE_WORKFLOW = 'release.yml';
-const REPO = 'mattwiebe/mw-local-ai-connector';
+const REPO = 'mattwiebe/ai-connector-for-local-ai';
 
 function run( command, args, options = {} ) {
 	return execFileSync( command, args, {

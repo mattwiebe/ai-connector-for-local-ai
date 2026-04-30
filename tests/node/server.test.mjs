@@ -101,5 +101,5 @@ test( 'formatRequestLogMessage includes status, method, path, and source', () =>
 } );
 
 test( 'plugin releases URL points to the GitHub latest release page', () => {
-	assert.equal( PLUGIN_RELEASES_URL, 'https://github.com/mattwiebe/mw-local-ai-connector/releases/latest' );
+	assert.equal( PLUGIN_RELEASES_URL, 'https://github.com/mattwiebe/ai-connector-for-local-ai/releases/latest' );
 } );

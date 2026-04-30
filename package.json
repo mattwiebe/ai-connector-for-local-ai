@@ -1,6 +1,6 @@
 {
   "name": "@mattwiebe/ai-connector-for-local-ai",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "CLI and WordPress plugin for routing AI inference to models running on your own machine.",
   "type": "module",
   "bin": {
@@ -36,12 +36,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mattwiebe/mw-local-ai-connector"
+    "url": "https://github.com/mattwiebe/ai-connector-for-local-ai"
   },
   "bugs": {
-    "url": "https://github.com/mattwiebe/mw-local-ai-connector/issues"
+    "url": "https://github.com/mattwiebe/ai-connector-for-local-ai/issues"
   },
-  "homepage": "https://github.com/mattwiebe/mw-local-ai-connector#readme",
+  "homepage": "https://github.com/mattwiebe/ai-connector-for-local-ai#readme",
   "license": "GPL-2.0-or-later",
   "engines": {
     "node": ">=20"

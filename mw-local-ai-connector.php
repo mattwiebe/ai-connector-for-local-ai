@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: MW Local AI Connector
- * Plugin URI: https://github.com/mattwiebe/mw-local-ai-connector
+ * Plugin URI: https://github.com/mattwiebe/ai-connector-for-local-ai
  * Description: AI providers for routing AI requests to your own machine.
  * Requires at least: 7.0
  * Requires PHP: 7.4
- * Version: 0.3.0
+ * Version: 0.3.1
  * Author: Matt Wiebe
  * License: GPL-2.0-or-later
  * License URI: https://spdx.org/licenses/GPL-2.0-or-later.html

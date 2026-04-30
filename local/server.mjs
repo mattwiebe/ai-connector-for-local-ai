@@ -68,7 +68,7 @@ const FUNNEL_PORT_CHOICES = [
 ];
 const ALLOWED_FUNNEL_PORTS = FUNNEL_PORT_CHOICES.map( ( choice ) => choice.port );
 const PUBLIC_DNS_SERVERS = [ '1.1.1.1', '8.8.8.8' ];
-const PLUGIN_RELEASES_URL = 'https://github.com/mattwiebe/mw-local-ai-connector/releases/latest';
+const PLUGIN_RELEASES_URL = 'https://github.com/mattwiebe/ai-connector-for-local-ai/releases/latest';
 let PORT = 13531;
 let BACKEND = '';
 let API_KEY = '';
