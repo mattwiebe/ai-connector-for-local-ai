@@ -23,7 +23,7 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping -proot" --health-interval=10s --health-timeout=10s --health-retries=10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install svn
         run: |
@@ -36,7 +36,7 @@ jobs:
           coverage: none
           extensions: mysql
 
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
 
       - name: Lint PHP
         run: composer lint
@@ -51,7 +51,7 @@ jobs:
     name: Node
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
         with:
