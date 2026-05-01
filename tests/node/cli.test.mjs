@@ -25,4 +25,6 @@ test( 'helpText and version include the package version', () => {
 	assert.match( helpText(), /laiproxy --version/ );
 	assert.match( helpText(), /Alias for npm run up/ );
 	assert.match( helpText(), /rotate-key/ );
+	assert.match( helpText(), /--provider <slug:port>/ );
+	assert.match( helpText(), /--tunnel <mode>/ );
 } );

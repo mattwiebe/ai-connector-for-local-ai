@@ -7,7 +7,7 @@ import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ENV_PATH as DEFAULT_ENV_PATH, getEffectiveConfig, hasUsableConfig, writeConfig } from '../local/server.mjs';
+import { ENV_PATH as DEFAULT_ENV_PATH, getEffectiveConfig, hasUsableConfig, requiresApiKey, writeConfig } from '../local/server.mjs';
 
 const SCRIPT_DIR = dirname( fileURLToPath( import.meta.url ) );
 const ROOT_DIR = dirname( SCRIPT_DIR );
@@ -190,6 +190,12 @@ function statusService() {
 
 function rotateKey() {
 	const config = ensureConfigReady();
+	if ( ! requiresApiKey( config.tunnelMode ) ) {
+		console.log( 'Local-only mode does not require an API key; no key was rotated.' );
+		console.log( `Config: ${ ENV_PATH }` );
+		return;
+	}
+
 	const nextApiKey = randomBytes( 32 ).toString( 'hex' );
 	const wasLoaded = process.platform === 'darwin' && isLoaded();
 

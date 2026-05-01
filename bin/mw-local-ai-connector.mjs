@@ -79,11 +79,13 @@ Commands:
   uninstall  Alias for npm run service:uninstall
 
 Options:
-  --port <n>         Local proxy port (default: 13531)
-  --funnel-port <n>  Tailscale Funnel public port (default: 8443)
-  --backend <url>    Backend URL to proxy to
-  --api-key <key>    Shared API key for the proxy
-  --no-tunnel        Disable Tailscale Funnel
+  --port <n>              Local proxy port (default: 13531)
+  --provider <slug:port>  Local provider; repeat for multiple providers
+  --tunnel <mode>         local, tailscale, or cloudflare (default: local)
+  --funnel-port <n>       Tailscale Funnel public port (default: 8443)
+  --backend <url>         Legacy single-backend URL
+  --api-key <key>         Shared API key for tunneled proxy modes
+  --no-tunnel             Alias for --tunnel local
 `;
 }
 

@@ -6,13 +6,18 @@ import {
 	buildPublicUrl,
 	formatRequestLogMessage,
 	FUNNEL_PORT_CHOICES,
+	getProviderConfigError,
 	hasUsableConfig,
 	getRequestSource,
 	parseBooleanEnv,
 	parseEnvFile,
 	parseNumberOrFallback,
 	parsePortNumber,
+	parseProviderSpecifier,
+	parseProvidersEnv,
 	PLUGIN_RELEASES_URL,
+	requiresApiKey,
+	TUNNEL_MODES,
 } from '../../local/server.mjs';
 
 test( 'parseEnvFile parses quoted values and ignores comments', () => {
@@ -40,10 +45,13 @@ test( 'default funnel choice is 8443', () => {
 	assert.equal( FUNNEL_PORT_CHOICES[0].label, '8443 (default)' );
 } );
 
-test( 'hasUsableConfig requires backend URL and API key', () => {
+test( 'hasUsableConfig requires providers and only requires API key for tunneled modes', () => {
 	assert.equal( hasUsableConfig( { backendUrl: 'http://localhost:11434', apiKey: 'secret' } ), true );
 	assert.equal( hasUsableConfig( { backendUrl: '', apiKey: 'secret' } ), false );
 	assert.equal( hasUsableConfig( { backendUrl: 'http://localhost:11434', apiKey: '' } ), false );
+	assert.equal( hasUsableConfig( { providers: [ { slug: 'ollama', port: 11434, url: 'http://localhost:11434' } ], apiKey: 'secret' } ), true );
+	assert.equal( hasUsableConfig( { providers: [ { slug: 'ollama', port: 11434, url: 'http://localhost:11434' } ], tunnelMode: 'local', apiKey: '' } ), true );
+	assert.equal( hasUsableConfig( { providers: [ { slug: 'ollama', port: 11434, url: 'http://localhost:11434' } ], tunnelMode: 'cloudflare', apiKey: '' } ), false );
 } );
 
 test( 'parseBooleanEnv and parseNumberOrFallback normalize persisted values', () => {
@@ -67,6 +75,64 @@ test( 'parsePortNumber validates TCP port numbers', () => {
 test( 'buildLocalhostBackendUrl creates backend URL from a port', () => {
 	assert.equal( buildLocalhostBackendUrl( '1234' ), 'http://localhost:1234' );
 	assert.equal( buildLocalhostBackendUrl( 'not-a-port' ), '' );
+} );
+
+test( 'parseProviderSpecifier validates slug and port provider entries', () => {
+	assert.deepEqual( parseProviderSpecifier( 'ollama:11434' ), {
+		slug: 'ollama',
+		port: 11434,
+		url: 'http://localhost:11434',
+	} );
+	assert.deepEqual( parseProviderSpecifier( 'VibeProxy=3434' ), {
+		slug: 'vibeproxy',
+		port: 3434,
+		url: 'http://localhost:3434',
+	} );
+	assert.equal( parseProviderSpecifier( 'bad slug:1234' ), null );
+	assert.equal( parseProviderSpecifier( 'ollama:99999' ), null );
+} );
+
+test( 'parseProvidersEnv parses comma separated provider config', () => {
+	assert.deepEqual( parseProvidersEnv( 'ollama:11434,lmstudio:1234' ), [
+		{
+			slug: 'ollama',
+			port: 11434,
+			url: 'http://localhost:11434',
+		},
+		{
+			slug: 'lmstudio',
+			port: 1234,
+			url: 'http://localhost:1234',
+		},
+	] );
+} );
+
+test( 'provider config reports duplicate provider ports', () => {
+	const providers = parseProvidersEnv( 'mlxstudio:8317,vibeproxy:8317' );
+
+	assert.deepEqual( providers, [
+		{
+			slug: 'mlxstudio',
+			port: 8317,
+			url: 'http://localhost:8317',
+		},
+		{
+			slug: 'vibeproxy',
+			port: 8317,
+			url: 'http://localhost:8317',
+		},
+	] );
+	assert.equal(
+		getProviderConfigError( providers ),
+		'Duplicate provider port 8317 for "mlxstudio" and "vibeproxy". Each provider needs a unique localhost port.'
+	);
+} );
+
+test( 'tunnel modes include local, tailscale, and cloudflare', () => {
+	assert.deepEqual( TUNNEL_MODES, [ 'local', 'tailscale', 'cloudflare' ] );
+	assert.equal( requiresApiKey( 'local' ), false );
+	assert.equal( requiresApiKey( 'tailscale' ), true );
+	assert.equal( requiresApiKey( 'cloudflare' ), true );
 } );
 
 test( 'getRequestSource prefers forwarded headers and includes host context', () => {
