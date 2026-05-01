@@ -4,7 +4,7 @@ Tags: ai, connectors, inference, openai, models
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.2
+Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,14 @@ The Actual Computer connector sends requests to the fixed base URL `https://api.
 If you do not configure either connector, this plugin makes no outbound network requests.
 
 == Changelog ==
+
+= 0.4.0 =
+
+* Add multi-provider local proxy support with provider-prefixed model IDs.
+* Add local-only, Tailscale Funnel, and Cloudflare Tunnel proxy modes.
+* Add local-only proxy mode without API-key authentication.
+* Add `.env` watching so the proxy restarts when configuration changes.
+* Add proxy integration tests for routing, model aggregation, config validation, and restart behavior.
 
 = 0.3.2 =
 
