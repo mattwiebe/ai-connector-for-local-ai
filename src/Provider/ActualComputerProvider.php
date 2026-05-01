@@ -63,7 +63,7 @@ class ActualComputerProvider extends AbstractApiProvider {
 			ProviderTypeEnum::server(),
 			null,
 			RequestAuthenticationMethod::apiKey(),
-			__( 'Connect WordPress AI to an Actual Computer endpoint.', 'ai-connector-for-local-ai' ),
+			__( 'Connect WordPress AI to an Actual Computer endpoint.', 'mw-local-ai-connector' ),
 			__DIR__ . '/../../assets/logo.svg'
 		);
 	}

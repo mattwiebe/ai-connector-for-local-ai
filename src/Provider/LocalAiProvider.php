@@ -71,7 +71,7 @@ class LocalAiProvider extends AbstractApiProvider {
 			ProviderTypeEnum::server(),
 			null,
 			RequestAuthenticationMethod::apiKey(),
-			__( 'Run AI inference on your own hardware using local models.', 'ai-connector-for-local-ai' ),
+			__( 'Run AI inference on your own hardware using local models.', 'mw-local-ai-connector' ),
 			__DIR__ . '/../../assets/logo.svg'
 		);
 	}
