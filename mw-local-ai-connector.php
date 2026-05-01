@@ -80,17 +80,18 @@ function provider_definitions(): array {
 			'settings_group'        => 'mw_local_ai',
 			'admin_page'            => 'mw-local-ai',
 			'show_endpoint_field'   => true,
+			'api_key_required'      => false,
 			'connector_auth_method' => 'none',
 			'use_custom_connector_ui' => true,
 			'endpoint_label'        => __( 'Endpoint URL', 'mw-local-ai-connector' ),
 			'endpoint_description'  => __( 'The URL of your Local AI proxy.', 'mw-local-ai-connector' ),
-			'endpoint_placeholder'  => 'https://your-machine.tail1234.ts.net',
-			'api_key_description'   => __( 'The API key shown when you started the proxy.', 'mw-local-ai-connector' ),
+			'endpoint_placeholder'  => 'https://your-proxy.example.com',
+			'api_key_description'   => __( 'Required for Tailscale Funnel or Cloudflare Tunnel. Leave blank for local-only proxy mode.', 'mw-local-ai-connector' ),
 			'model_description'     => __( 'Loaded live from the proxy /v1/models endpoint. The selected model will be the one exposed by this connector.', 'mw-local-ai-connector' ),
 			'model_invalid_message' => __( 'The selected model is not available from the Local AI proxy.', 'mw-local-ai-connector' ),
 			'setup'                 => array(
 				'heading'      => __( 'Setup', 'mw-local-ai-connector' ),
-				'introduction' => __( 'Connect this WordPress site to a local inference server (Ollama, llama.cpp, LM Studio, vLLM, etc.) running on your home computer.', 'mw-local-ai-connector' ),
+				'introduction' => __( 'Connect this WordPress site to one or more local inference servers (Ollama, llama.cpp, LM Studio, vLLM, etc.) running on your home computer.', 'mw-local-ai-connector' ),
 				'steps'        => array(
 					array(
 						'heading'  => __( 'Step 1: Start your local inference server', 'mw-local-ai-connector' ),
@@ -98,12 +99,13 @@ function provider_definitions(): array {
 						'commands' => array( 'ollama serve' ),
 					),
 					array(
-						'heading' => __( 'Step 2: Install Tailscale', 'mw-local-ai-connector' ),
-						'body'    => __( 'The proxy uses Tailscale Funnel to securely expose your local server to the internet, without port forwarding.', 'mw-local-ai-connector' ),
+						'heading' => __( 'Step 2: Choose local or tunnel access', 'mw-local-ai-connector' ),
+						'body'    => __( 'The proxy can run locally only, or expose your local providers through Tailscale Funnel or Cloudflare Tunnel.', 'mw-local-ai-connector' ),
 						'html'    => sprintf(
-							/* translators: %s: Tailscale download URL. */
-							wp_kses_post( __( 'Install Tailscale from %s and run `tailscale up` to sign in.', 'mw-local-ai-connector' ) ),
-							'<a href="https://tailscale.com/download" target="_blank" rel="noreferrer noopener">tailscale.com/download</a>'
+							/* translators: 1: Tailscale download URL. 2: tailscale up command. */
+							__( 'For Tailscale Funnel, install Tailscale from %1$s and run %2$s to sign in.', 'mw-local-ai-connector' ),
+							'<a href="https://tailscale.com/download" target="_blank" rel="noreferrer noopener">tailscale.com/download</a>',
+							'<code>tailscale up</code>'
 						),
 					),
 					array(
@@ -111,14 +113,12 @@ function provider_definitions(): array {
 						'body'     => __( 'On your home computer, install the published CLI and run the setup command:', 'mw-local-ai-connector' ),
 						'commands' => array( 'npm install -g @mattwiebe/ai-connector-for-local-ai && laiproxy init', 'laiproxy up', 'laiproxy install' ),
 						'notes'    => array(
-							__( 'This configures the proxy, auto-detects your local backend, optionally starts Tailscale Funnel, and saves the connection details for future runs.', 'mw-local-ai-connector' ),
-							__( 'If you are working from this repo instead of a global npm install, the equivalent commands are `npm run init`, `npm run up`, and `npm run service:install`.', 'mw-local-ai-connector' ),
-							__( 'On macOS, the LaunchAgent can be managed later with `laiproxy start`, `laiproxy stop`, and `laiproxy uninstall`.', 'mw-local-ai-connector' ),
+							__( 'This configures the proxy, scans for local providers, optionally starts a tunnel, and saves the connection details for future runs.', 'mw-local-ai-connector' ),
 						),
 					),
 					array(
 						'heading' => __( 'Step 4: Enter the connection details below', 'mw-local-ai-connector' ),
-						'body'    => __( 'Copy the Endpoint URL and API Key shown by the proxy into the form below.', 'mw-local-ai-connector' ),
+						'body'    => __( 'Copy the Endpoint URL shown by the proxy into the form below. For Tailscale Funnel or Cloudflare Tunnel, also copy the API Key.', 'mw-local-ai-connector' ),
 					),
 				),
 			),
@@ -143,6 +143,7 @@ function provider_definitions(): array {
 			'admin_page'            => 'mw-actual-computer',
 			'fixed_endpoint_url'    => 'https://api.actual.inc',
 			'show_endpoint_field'   => false,
+			'api_key_required'      => true,
 			'connector_auth_method' => 'api_key',
 			'credentials_url'       => 'https://actual.inc/console/api',
 			'use_custom_connector_ui' => false,
@@ -537,7 +538,7 @@ function register_settings(): void {
 		array(
 			'type'              => 'string',
 			'label'             => __( 'API Key', 'mw-local-ai-connector' ),
-			'description'       => __( 'The shared secret shown when you start the local proxy.', 'mw-local-ai-connector' ),
+			'description'       => __( 'The shared secret shown when you start a tunneled local proxy. Leave blank for local-only mode.', 'mw-local-ai-connector' ),
 			'default'           => '',
 			'show_in_rest'      => true,
 			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_api_key',
@@ -663,7 +664,7 @@ function sanitize_provider_model_id( $value, string $slug ): string {
 	$provider   = get_provider_definition( $slug );
 	$connection = get_submitted_or_saved_connection_details_for_provider( $slug );
 
-	if ( empty( $provider ) || '' === $connection['endpoint_url'] || '' === $connection['api_key'] ) {
+	if ( empty( $provider ) || '' === $connection['endpoint_url'] || ( ! empty( $provider['api_key_required'] ) && '' === $connection['api_key'] ) ) {
 		return $model_id;
 	}
 
@@ -773,21 +774,25 @@ function fetch_proxy_models( string $endpoint_url, string $api_key ) {
 	$endpoint_url = untrailingslashit( trim( $endpoint_url ) );
 	$api_key      = trim( $api_key );
 
-	if ( '' === $endpoint_url || '' === $api_key ) {
+	if ( '' === $endpoint_url ) {
 		return new \WP_Error(
 			'mw_local_ai_missing_connection',
-			__( 'Save the endpoint URL and API key before loading models.', 'mw-local-ai-connector' )
+			__( 'Save the endpoint URL before loading models.', 'mw-local-ai-connector' )
 		);
+	}
+
+	$headers = array(
+		'Accept' => 'application/json',
+	);
+	if ( '' !== $api_key ) {
+		$headers['Authorization'] = 'Bearer ' . $api_key;
 	}
 
 	$response = wp_remote_get(
 		$endpoint_url . '/v1/models',
 		array(
 			'timeout' => 10,
-			'headers' => array(
-				'Authorization' => 'Bearer ' . $api_key,
-				'Accept'        => 'application/json',
-			),
+			'headers' => $headers,
 		)
 	);
 
@@ -892,7 +897,9 @@ function render_provider_admin_page( string $slug ): void {
 	$endpoint_url  = get_provider_endpoint_url( $provider );
 	$api_key       = (string) get_option( $provider['api_key_option'], '' );
 	$model_id      = (string) get_option( $provider['model_option'], '' );
-	$is_configured = '' !== trim( $api_key );
+	$is_configured = ! empty( $provider['api_key_required'] )
+		? '' !== trim( $api_key )
+		: '' !== trim( $endpoint_url );
 	$models        = $is_configured ? fetch_proxy_models( $endpoint_url, $api_key ) : new \WP_Error( 'provider_not_configured', '' );
 
 	?>
@@ -980,7 +987,7 @@ function render_provider_admin_page( string $slug ): void {
 							<?php endif; ?>
 						</select>
 						<?php if ( ! $is_configured ) : ?>
-							<p class="description"><?php esc_html_e( 'Save the endpoint URL and API key first to load available models.', 'mw-local-ai-connector' ); ?></p>
+							<p class="description"><?php echo esc_html( ! empty( $provider['api_key_required'] ) ? __( 'Save the API key first to load available models.', 'mw-local-ai-connector' ) : __( 'Save the endpoint URL first to load available models.', 'mw-local-ai-connector' ) ); ?></p>
 						<?php elseif ( is_wp_error( $models ) ) : ?>
 							<p class="description"><?php echo esc_html( $models->get_error_message() ); ?></p>
 						<?php else : ?>

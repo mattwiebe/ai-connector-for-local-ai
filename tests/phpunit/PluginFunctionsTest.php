@@ -11,6 +11,7 @@ use Mattwiebe\LocalAiConnector\Metadata\ActualComputerModelMetadataDirectory;
 use Mattwiebe\LocalAiConnector\Metadata\LocalAiModelMetadataDirectory;
 use function Mattwiebe\LocalAiConnector\allow_local_ai_safe_remote_requests;
 use function Mattwiebe\LocalAiConnector\fetch_proxy_models;
+use function Mattwiebe\LocalAiConnector\provider_definitions;
 use function Mattwiebe\LocalAiConnector\sanitize_api_key;
 use function Mattwiebe\LocalAiConnector\sanitize_actual_computer_model_id;
 use function Mattwiebe\LocalAiConnector\sanitize_local_ai_model_id;
@@ -34,6 +35,14 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		$raw = " \t  token:abc+/=  \n";
 
 		$this->assertSame( 'token:abc+/=', sanitize_api_key( $raw ) );
+	}
+
+	public function test_local_ai_setup_keeps_tailscale_command_code_markup(): void {
+		$definitions = provider_definitions();
+		$html        = $definitions['mw-local-ai']['setup']['steps'][1]['html'];
+
+		$this->assertStringContainsString( '<code>tailscale up</code>', $html );
+		$this->assertStringContainsString( '<code>tailscale up</code>', \wp_kses_post( $html ) );
 	}
 
 	public function test_fetch_proxy_models_returns_ids_from_valid_response(): void {
@@ -66,6 +75,41 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 
 		$this->assertIsArray( $models );
 		$this->assertSame( array( 'llama3.2', 'qwen2.5' ), wp_list_pluck( $models, 'id' ) );
+	}
+
+	public function test_fetch_proxy_models_allows_blank_api_key(): void {
+		add_filter(
+			'pre_http_request',
+			static function ( $response, $args, $url ) {
+				if ( 'http://127.0.0.1:13531/v1/models' !== $url ) {
+					return $response;
+				}
+
+				if ( isset( $args['headers']['Authorization'] ) ) {
+					return new WP_Error( 'unexpected_authorization_header', 'Authorization header should not be sent.' );
+				}
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'data' => array(
+								array( 'id' => 'ollama/llama3.2' ),
+							),
+						)
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$models = fetch_proxy_models( 'http://127.0.0.1:13531', '' );
+
+		remove_all_filters( 'pre_http_request' );
+
+		$this->assertIsArray( $models );
+		$this->assertSame( array( 'ollama/llama3.2' ), wp_list_pluck( $models, 'id' ) );
 	}
 
 	public function test_fetch_proxy_models_returns_wp_error_for_invalid_response(): void {
@@ -118,6 +162,41 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 'qwen2.5', sanitize_local_ai_model_id( 'qwen2.5' ) );
+
+		remove_all_filters( 'pre_http_request' );
+	}
+
+	public function test_sanitize_model_id_accepts_live_model_without_api_key(): void {
+		update_option( 'mw_local_ai_endpoint_url', 'http://127.0.0.1:13531' );
+		update_option( 'mw_local_ai_api_key', '' );
+
+		add_filter(
+			'pre_http_request',
+			static function ( $response, $args, $url ) {
+				if ( 'http://127.0.0.1:13531/v1/models' !== $url ) {
+					return $response;
+				}
+
+				if ( isset( $args['headers']['Authorization'] ) ) {
+					return new WP_Error( 'unexpected_authorization_header', 'Authorization header should not be sent.' );
+				}
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'data' => array(
+								array( 'id' => 'ollama/llama3.2' ),
+							),
+						)
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$this->assertSame( 'ollama/llama3.2', sanitize_local_ai_model_id( 'ollama/llama3.2' ) );
 
 		remove_all_filters( 'pre_http_request' );
 	}
