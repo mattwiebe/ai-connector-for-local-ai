@@ -8,13 +8,13 @@ This is an independent project by Matt Wiebe. It is not affiliated with, endorse
 
 ## What It Does
 
-- Registers a `mw-local-ai` AI provider with the WordPress AI Client.
+- Registers a `mwlai` AI provider with the WordPress AI Client.
 - Adds a Settings screen for entering the proxy URL, optional API key, and selected model.
 - Loads model choices from the real proxied `/v1/models` endpoint.
 - Restricts the provider to the selected model so WordPress auto-discovery consistently uses it.
 - Ships a local `node` proxy that can:
   - scan common localhost ports for OpenAI-compatible providers,
-  - persist provider configuration in `~/.config/mw-local-ai-connector/.env`,
+  - persist provider configuration in `~/.config/mwlai-connector/.env`,
   - expose the proxy through Tailscale Funnel or Cloudflare Tunnel,
   - protect tunneled requests with a bearer token.
 
@@ -38,7 +38,7 @@ This is an independent project by Matt Wiebe. It is not affiliated with, endorse
 
 ## WordPress Plugin Setup
 
-1. Copy this plugin into `wp-content/plugins/mw-local-ai-connector`.
+1. Copy this plugin into `wp-content/plugins/mwlai-connector`.
 2. Activate the plugin in WordPress.
 3. Open `Settings > Connectors` or the dedicated Local AI settings page.
 4. Enter:
@@ -101,7 +101,7 @@ That guided setup will:
 - generate or accept an API key for tunneled modes,
 - ask whether to run local-only, Tailscale Funnel, or Cloudflare Tunnel,
 - ask which public Funnel port to use when Tailscale is selected, defaulting to `8443`,
-- save everything into `~/.config/mw-local-ai-connector/.env` when run through the `laiproxy` CLI.
+- save everything into `~/.config/mwlai-connector/.env` when run through the `laiproxy` CLI.
 
 When Funnel starts, the proxy also checks public DNS for the generated `ts.net` hostname. If public DNS has not propagated yet, WordPress may temporarily report `Could not resolve host`; Tailscale says Funnel DNS propagation can take up to 10 minutes.
 
@@ -133,7 +133,7 @@ To reconfigure later:
 laiproxy init
 ```
 
-On macOS, `laiproxy install` or `npm run service:install` writes a LaunchAgent at `~/Library/LaunchAgents/com.mattwiebe.mw-local-ai-connector.plist` so the proxy can keep running in the background across logins.
+On macOS, `laiproxy install` or `npm run service:install` writes a LaunchAgent at `~/Library/LaunchAgents/com.mattwiebe.mwlai-connector.plist` so the proxy can keep running in the background across logins.
 
 To rotate the shared API key for a tunneled proxy in the persisted `.env` file and print the new key:
 

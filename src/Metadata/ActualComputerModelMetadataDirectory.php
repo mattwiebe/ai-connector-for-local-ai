@@ -34,7 +34,7 @@ class ActualComputerModelMetadataDirectory extends AbstractOpenAiCompatibleModel
 	 */
 	protected function getBaseCacheKey(): string {
 		$endpoint_url      = 'https://api.actual.inc';
-		$selected_model_id = (string) get_option( 'mw_actual_computer_model_id', '' );
+		$selected_model_id = (string) get_option( 'mwlai_actual_computer_model_id', '' );
 
 		return parent::getBaseCacheKey() . '_' . md5( $endpoint_url . '|' . $selected_model_id );
 	}
@@ -94,7 +94,7 @@ class ActualComputerModelMetadataDirectory extends AbstractOpenAiCompatibleModel
 
 		$models            = array();
 		$matched_models    = array();
-		$selected_model_id = trim( (string) get_option( 'mw_actual_computer_model_id', '' ) );
+		$selected_model_id = trim( (string) get_option( 'mwlai_actual_computer_model_id', '' ) );
 
 		foreach ( (array) $responseData['data'] as $model_data ) {
 			if ( ! is_array( $model_data ) || ! isset( $model_data['id'] ) ) {

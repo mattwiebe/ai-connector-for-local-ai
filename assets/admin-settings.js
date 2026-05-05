@@ -1,7 +1,7 @@
 ( function () {
 	'use strict';
 
-	var settings = window.mwLocalAiConnectorAdminSettings || {};
+	var settings = window.mwlaiAdminSettings || {};
 	var copiedLabel = settings.copiedLabel || 'Copied!';
 	var failedLabel = settings.failedLabel || 'Copy failed';
 
@@ -43,7 +43,7 @@
 		}, 2000 );
 	}
 
-	document.querySelectorAll( '.mw-local-ai-copy' ).forEach( function ( btn ) {
+	document.querySelectorAll( '.mwlai-copy' ).forEach( function ( btn ) {
 		btn.addEventListener( 'click', function () {
 			var code = btn.parentNode.querySelector( 'code' );
 			if ( ! code ) {

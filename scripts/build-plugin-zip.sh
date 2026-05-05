@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
 STAGING_DIR="$DIST_DIR/staging"
-PACKAGE_SLUG="mw-local-ai-connector"
+PACKAGE_SLUG="mwlai-connector"
 PACKAGE_DIR="$STAGING_DIR/$PACKAGE_SLUG"
 ZIP_PATH="$DIST_DIR/${PACKAGE_SLUG}-plugin.zip"
 

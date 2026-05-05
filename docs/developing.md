@@ -82,7 +82,7 @@ npm run build:plugin
 That creates:
 
 ```text
-dist/mw-local-ai-connector-plugin.zip
+dist/mwlai-connector-plugin.zip
 ```
 
 Build the npm package tarball locally:
@@ -94,7 +94,7 @@ npm run build:npm
 That creates:
 
 ```text
-dist/mattwiebe-mw-local-ai-connector-<version>.tgz
+dist/mattwiebe-mwlai-connector-<version>.tgz
 ```
 
 ## GitHub Automation
@@ -115,8 +115,8 @@ To cut a release:
 1. Make sure `package.json` and the plugin header version are aligned.
 2. Create and push a semver tag like `v0.2.0`.
 3. GitHub Actions will build:
-   - `dist/mw-local-ai-connector-plugin.zip`
-   - `dist/mattwiebe-mw-local-ai-connector-<version>.tgz`
+   - `dist/mwlai-connector-plugin.zip`
+   - `dist/mattwiebe-mwlai-connector-<version>.tgz`
 4. The workflow will attach both files to the GitHub release automatically.
 
 For Packagist, connect the GitHub repository in Packagist so updates are detected through the Packagist GitHub integration. Reference: [Packagist update hooks](https://packagist.org/about#how-to-update-packages).
@@ -171,7 +171,7 @@ If you want to consume it directly from GitHub before Packagist metadata refresh
 The repo is still compatible with the same Composer install flow described in the WP Packages docs:
 
 - it uses Composer package type `wordpress-plugin`
-- it sets a stable installer name of `mw-local-ai-connector`
+- it sets a stable installer name of `mwlai-connector`
 - it works with the same root-level `composer/installers` configuration used for WP Packages packages
 
 So the practical path today is `mattwiebe/ai-connector-for-local-ai` via Packagist or a VCS repository. If the plugin is later published to WordPress.org, then a WP Packages entry would become possible under a `wp-plugin/...` package name.
@@ -209,12 +209,12 @@ npx @mattwiebe/ai-connector-for-local-ai up
 npx @mattwiebe/ai-connector-for-local-ai init
 ```
 
-The package also exposes `mw-local-ai-connector` as a longer alias, but `laiproxy` is the intended global command.
+The package also exposes `mwlai-connector` as a longer alias, but `laiproxy` is the intended global command.
 
 The npm CLI stores its persistent config in:
 
 ```text
-~/.config/mw-local-ai-connector/.env
+~/.config/mwlai-connector/.env
 ```
 
 That keeps `npx` usage stateful across runs instead of writing config into a temporary install directory.
@@ -254,7 +254,7 @@ This project is early, but the core loop is in place:
 - settings save with nonce/capability protection via the WordPress Settings API,
 - API key handling preserves secrets as opaque values,
 - model choices come from the live proxy and include provider-prefixed IDs,
-- local proxy configuration persists in `~/.config/mw-local-ai-connector/.env` when run through the npm CLI.
+- local proxy configuration persists in `~/.config/mwlai-connector/.env` when run through the npm CLI.
 
 ## License
 

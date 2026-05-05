@@ -10,6 +10,6 @@ test( 'buildPlist includes the LaunchAgent label and config env path', () => {
 	assert.match( plist, new RegExp( ENV_PATH.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) ) );
 	assert.match( plist, /<key>RunAtLoad<\/key>\s*<true\/>/ );
 	assert.match( plist, /<key>KeepAlive<\/key>\s*<true\/>/ );
-	assert.match( plist, /mw-local-ai-connector\.mjs/ );
-	assert.match( plist, /Library\/Logs\/mw-local-ai-connector\/stdout\.log/ );
+	assert.match( plist, /mwlai-connector\.mjs/ );
+	assert.match( plist, /Library\/Logs\/mwlai-connector\/stdout\.log/ );
 } );

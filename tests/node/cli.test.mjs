@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { helpText, normalizeArgs, VERSION } from '../../bin/mw-local-ai-connector.mjs';
+import { helpText, normalizeArgs, VERSION } from '../../bin/mwlai-connector.mjs';
 
 test( 'normalizeArgs handles help and version flags locally', () => {
 	assert.deepEqual( normalizeArgs( [ '--help' ] ), { action: 'help', forwardedArgs: [] } );

@@ -32,7 +32,7 @@
         ]
     },
     "extra": {
-        "installer-name": "mw-local-ai-connector",
+        "installer-name": "mwlai-connector",
         "branch-alias": {
             "dev-main": "0.2.x-dev"
         }

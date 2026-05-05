@@ -12,6 +12,7 @@ use Mattwiebe\LocalAiConnector\Metadata\LocalAiModelMetadataDirectory;
 use function Mattwiebe\LocalAiConnector\allow_local_ai_safe_remote_requests;
 use function Mattwiebe\LocalAiConnector\fetch_proxy_models;
 use function Mattwiebe\LocalAiConnector\provider_definitions;
+use function Mattwiebe\LocalAiConnector\register_settings;
 use function Mattwiebe\LocalAiConnector\sanitize_api_key;
 use function Mattwiebe\LocalAiConnector\sanitize_actual_computer_model_id;
 use function Mattwiebe\LocalAiConnector\sanitize_local_ai_model_id;
@@ -23,11 +24,11 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		update_option( 'mw_local_ai_endpoint_url', 'https://proxy.example.test' );
-		update_option( 'mw_local_ai_api_key', 'secret-token' );
-		delete_option( 'mw_local_ai_model_id' );
-		update_option( 'mw_actual_computer_api_key', 'actual-secret-token' );
-		delete_option( 'mw_actual_computer_model_id' );
+		update_option( 'mwlai_endpoint_url', 'https://proxy.example.test' );
+		update_option( 'mwlai_api_key', 'secret-token' );
+		delete_option( 'mwlai_model_id' );
+		update_option( 'mwlai_actual_computer_api_key', 'actual-secret-token' );
+		delete_option( 'mwlai_actual_computer_model_id' );
 		$_POST = array();
 	}
 
@@ -39,10 +40,31 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 
 	public function test_local_ai_setup_keeps_tailscale_command_code_markup(): void {
 		$definitions = provider_definitions();
-		$html        = $definitions['mw-local-ai']['setup']['steps'][1]['html'];
+		$html        = $definitions['mwlai']['setup']['steps'][1]['html'];
 
 		$this->assertStringContainsString( '<code>tailscale up</code>', $html );
 		$this->assertStringContainsString( '<code>tailscale up</code>', \wp_kses_post( $html ) );
+	}
+
+	public function test_registered_settings_have_sanitize_callbacks(): void {
+		global $wp_registered_settings;
+
+		register_settings();
+
+		$definitions = provider_definitions();
+		$options     = array(
+			$definitions['mwlai']['endpoint_option'],
+			$definitions['mwlai']['api_key_option'],
+			$definitions['mwlai']['model_option'],
+			$definitions['mwlai-actual-computer']['api_key_option'],
+			$definitions['mwlai-actual-computer']['model_option'],
+		);
+
+		foreach ( $options as $option ) {
+			$this->assertArrayHasKey( $option, $wp_registered_settings );
+			$this->assertArrayHasKey( 'sanitize_callback', $wp_registered_settings[ $option ] );
+			$this->assertIsCallable( $wp_registered_settings[ $option ]['sanitize_callback'] );
+		}
 	}
 
 	public function test_fetch_proxy_models_returns_ids_from_valid_response(): void {
@@ -134,7 +156,7 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 		remove_all_filters( 'pre_http_request' );
 
 		$this->assertInstanceOf( WP_Error::class, $models );
-		$this->assertSame( 'mw_local_ai_models_invalid_response', $models->get_error_code() );
+		$this->assertSame( 'mwlai_models_invalid_response', $models->get_error_code() );
 	}
 
 	public function test_sanitize_model_id_accepts_live_model(): void {
@@ -167,8 +189,8 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 	}
 
 	public function test_sanitize_model_id_accepts_live_model_without_api_key(): void {
-		update_option( 'mw_local_ai_endpoint_url', 'http://127.0.0.1:13531' );
-		update_option( 'mw_local_ai_api_key', '' );
+		update_option( 'mwlai_endpoint_url', 'http://127.0.0.1:13531' );
+		update_option( 'mwlai_api_key', '' );
 
 		add_filter(
 			'pre_http_request',
@@ -274,7 +296,7 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 			$this->markTestSkipped( 'WordPress AI Client model metadata directory classes are not available in this test environment.' );
 		}
 
-		update_option( 'mw_local_ai_model_id', 'missing-model' );
+		update_option( 'mwlai_model_id', 'missing-model' );
 
 		$directory = new LocalAiModelMetadataDirectory();
 		$reflection = new \ReflectionMethod( $directory, 'parseResponseToModelMetadataList' );
@@ -335,7 +357,7 @@ final class PluginFunctionsTest extends WP_UnitTestCase {
 			$this->markTestSkipped( 'WordPress AI Client model metadata directory classes are not available in this test environment.' );
 		}
 
-		update_option( 'mw_actual_computer_model_id', 'missing-model' );
+		update_option( 'mwlai_actual_computer_model_id', 'missing-model' );
 
 		$directory  = new ActualComputerModelMetadataDirectory();
 		$reflection = new \ReflectionMethod( $directory, 'parseResponseToModelMetadataList' );

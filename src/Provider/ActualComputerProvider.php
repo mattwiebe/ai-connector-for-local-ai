@@ -58,12 +58,12 @@ class ActualComputerProvider extends AbstractApiProvider {
 	 */
 	protected static function createProviderMetadata(): ProviderMetadata {
 		return new ProviderMetadata(
-			'mw-actual-computer',
+			'mwlai-actual-computer',
 			'Actual Computer',
 			ProviderTypeEnum::server(),
 			null,
 			RequestAuthenticationMethod::apiKey(),
-			__( 'Connect WordPress AI to an Actual Computer endpoint.', 'mw-local-ai-connector' ),
+			__( 'Connect WordPress AI to an Actual Computer endpoint.', 'mwlai-connector' ),
 			__DIR__ . '/../../assets/logo.svg'
 		);
 	}

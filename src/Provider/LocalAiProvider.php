@@ -32,7 +32,7 @@ class LocalAiProvider extends AbstractApiProvider {
 	 * @since 0.1.0
 	 */
 	protected static function baseUrl(): string {
-		$url = get_option( 'mw_local_ai_endpoint_url', '' );
+		$url = get_option( 'mwlai_endpoint_url', '' );
 
 		if ( empty( $url ) ) {
 			return '';
@@ -66,12 +66,12 @@ class LocalAiProvider extends AbstractApiProvider {
 	 */
 	protected static function createProviderMetadata(): ProviderMetadata {
 		return new ProviderMetadata(
-			'mw-local-ai',
+			'mwlai',
 			'Local AI',
 			ProviderTypeEnum::server(),
 			null,
 			RequestAuthenticationMethod::apiKey(),
-			__( 'Run AI inference on your own hardware using local models.', 'mw-local-ai-connector' ),
+			__( 'Run AI inference on your own hardware using local models.', 'mwlai-connector' ),
 			__DIR__ . '/../../assets/logo.svg'
 		);
 	}

@@ -1,4 +1,4 @@
-.mw-local-ai-cmd {
+.mwlai-cmd {
 	position: relative;
 	background: #f0f0f0;
 	padding: 12px 60px 12px 12px;
@@ -7,7 +7,7 @@
 	font-size: 13px;
 }
 
-.mw-local-ai-copy {
+.mwlai-copy {
 	position: absolute;
 	top: 9px;
 	right: 6px;
@@ -18,7 +18,7 @@
 	opacity: 0.66;
 }
 
-.mw-local-ai-copy:hover,
-.mw-local-ai-copy:active {
+.mwlai-copy:hover,
+.mwlai-copy:active {
 	opacity: 1;
 }

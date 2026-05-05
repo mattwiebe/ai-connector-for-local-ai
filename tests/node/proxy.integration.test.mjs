@@ -123,7 +123,7 @@ function startProxyProcess( envPath ) {
 		cwd: REPO_ROOT,
 		env: {
 			...process.env,
-			MW_LOCAL_AI_CONNECTOR_ENV_PATH: envPath,
+			MWLAI_CONNECTOR_ENV_PATH: envPath,
 		},
 		stdio: [ 'ignore', 'pipe', 'pipe' ],
 	} );

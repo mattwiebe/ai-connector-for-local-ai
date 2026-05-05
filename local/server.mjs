@@ -69,8 +69,8 @@ function hasFlag( name ) {
 
 const IS_INIT  = 'init' === process.argv[ 2 ];
 const SCRIPT_DIR = dirname( fileURLToPath( import.meta.url ) );
-const ENV_PATH = process.env.MW_LOCAL_AI_CONNECTOR_ENV_PATH
-	|| join( homedir(), '.config', 'mw-local-ai-connector', '.env' );
+const ENV_PATH = process.env.MWLAI_CONNECTOR_ENV_PATH
+	|| join( homedir(), '.config', 'mwlai-connector', '.env' );
 const PORT_ARG            = arg( 'port', '' );
 const FUNNEL_PORT_ARG     = arg( 'funnel-port', '' );
 const BACKEND_ARG         = arg( 'backend', '' );
