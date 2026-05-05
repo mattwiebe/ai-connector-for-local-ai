@@ -4,7 +4,7 @@ Tags: ai, connectors, inference, openai, models
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.4.1
+Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,10 @@ The Actual Computer connector sends requests to the fixed base URL `https://api.
 If you do not configure either connector, this plugin makes no outbound network requests.
 
 == Changelog ==
+
+= 0.5.0 =
+
+* Update plugin slugs, text domain, option names, handles, and packaged paths to use the `mwlai` prefix for WordPress.org compliance.
 
 = 0.4.1 =
 
