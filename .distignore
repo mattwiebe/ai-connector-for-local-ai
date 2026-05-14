@@ -2,9 +2,11 @@
 /.codex
 /.distignore
 /.DS_Store
+/.git
 /.github
 /.gitignore
 /.phpunit.result.cache
+/.svn
 /.wordpress-org
 /AGENTS.md
 /bin
@@ -21,3 +23,7 @@
 /scripts
 /tests
 /vendor
+**/.git
+**/.git/**
+**/.svn
+**/.svn/**
