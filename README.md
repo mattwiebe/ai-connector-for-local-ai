@@ -1,3 +1,5 @@
+![MW Local AI Connector banner](.wordpress-org/banner-1544x500.png)
+
 # MW Local AI Connector
 
 MW Local AI Connector is a WordPress AI provider plugin for connecting WordPress to local, OpenAI-compatible inference providers through a proxy you control.
