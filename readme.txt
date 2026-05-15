@@ -1,6 +1,6 @@
 === MW Local AI Connector ===
 Contributors: mattwiebe
-Tags: ai, connectors, inference, openai, models
+Tags: ai, connector, inference, artificial-intelligence, local-ai, openai, ollama, lm-studio, actual-computer
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
